@@ -135,8 +135,8 @@
 
     <script>
         // --- LIENS VERS VOS GOOGLE SHEETS ---
-        const urlQuestions = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRz2ZVUn64Uvx2hJalUoMPQrVNzfTZFmuDlzw_wylhC949Fu4FT0qUnQ1YFf-4AcqAfr8RPx9pfK8IR/pub?gid=0&single=true&output=csv";
-        const urlEspeces = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRz2ZVUn64Uvx2hJalUoMPQrVNzfTZFmuDlzw_wylhC949Fu4FT0qUnQ1YFf-4AcqAfr8RPx9pfK8IR/pub?gid=985980856&single=true&output=csv";
+        const urlQuestions = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRyc7XJvDEAvWRI_La0nZuo1k7e1PiF3FtxJCGyU5t0Yw21wPgrFNwHRd-_Atf-H6kYBJMg6VHrpMOZ/pub?gid=0&single=true&output=csv";
+        const urlEspeces = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRyc7XJvDEAvWRI_La0nZuo1k7e1PiF3FtxJCGyU5t0Yw21wPgrFNwHRd-_Atf-H6kYBJMg6VHrpMOZ/pub?gid=730345326&single=true&output=csv";
 
         // Variables globales vides (elles seront remplies par Google Sheets)
         let quizNature = [];
@@ -165,11 +165,12 @@
                 const textQ = await resQ.text();
                 const rowsQ = parseCSV(textQ).slice(1); // On retire la ligne de titre
                 
-                quizNature = rowsQ.filter(r => r.length >= 6 && r[0]).map(r => {
+                // On accepte la ligne tant qu'il y a une question écrite dans la première case
+                quizNature = rowsQ.filter(r => r[0] && r[0].trim() !== "").map(r => {
                     return {
                         q: r[0],
-                        options: [r[1], r[2], r[3], r[4]],
-                        correct: parseInt(r[5]) - 1 // -1 car le JavaScript compte à partir de 0 !
+                        options: [r[1] || "Option 1", r[2] || "Option 2", r[3] || "Option 3", r[4] || "Option 4"],
+                        correct: (parseInt(r[5]) || 1) - 1 // -1 car le JavaScript compte à partir de 0
                     };
                 });
 
@@ -178,29 +179,37 @@
                 const textE = await resE.text();
                 const rowsE = parseCSV(textE).slice(1);
                 
-                rowsE.filter(r => r.length >= 10 && r[0]).forEach(r => {
+                // On accepte la ligne tant qu'il y a un ID dans la première case
+                rowsE.filter(r => r[0] && r[0].trim() !== "").forEach(r => {
+                    const typeEspece = (r[1] || "plante").toLowerCase();
                     const espece = {
                         id: r[0],
-                        type: r[1].toLowerCase(),
-                        nom: r[2],
-                        latin: r[3],
-                        groupe: r[4],
-                        rarete: r[5],
-                        annee: r[6],
-                        chance: parseInt(r[7]),
-                        desc: r[8],
-                        image: r[9]
+                        type: typeEspece,
+                        nom: r[2] || "Espèce mystère",
+                        latin: r[3] || "Incognitus",
+                        groupe: r[4] || "Inconnu",
+                        rarete: r[5] || "Commune",
+                        annee: r[6] || "2024",
+                        chance: parseInt(r[7]) || 50,
+                        desc: r[8] || "Description à venir.",
+                        image: r[9] || "" // Si vide, le code mettra le rectangle gris provisoire
                     };
-                    if (espece.type === 'plante') fauneEtFlore.plantes.push(espece);
+                    if (typeEspece === 'plante') fauneEtFlore.plantes.push(espece);
                     else fauneEtFlore.animaux.push(espece);
                 });
 
-                console.log("✅ Données chargées avec succès !");
-                loadQuestion(); // On lance la première question !
+                console.log("✅ Données chargées ! Questions trouvées :", quizNature.length);
+                
+                // Sécurité : Vérifie si le tableau des questions est bien rempli
+                if (quizNature.length === 0) {
+                    document.getElementById("question-text").innerHTML = "⚠️ <b>Attention :</b> Votre Google Sheet 'Questions' a bien été lu, mais il semble vide.";
+                } else {
+                    loadQuestion(); // On lance la première question !
+                }
                 
             } catch (erreur) {
                 console.error(erreur);
-                document.getElementById("question-text").innerText = "❌ Erreur de chargement. Veuillez vérifier votre connexion internet ou vos liens Google Sheets.";
+                document.getElementById("question-text").innerText = "❌ Erreur réseau. Veuillez vérifier que votre Google Sheet est bien public.";
             }
         }
 
@@ -308,6 +317,12 @@
             document.getElementById("reward-animation").classList.add("hidden");
             document.getElementById("reward-result").classList.remove("hidden");
             
+            // Sécurité : au cas où pullGacha ne renverrait rien
+            if (!pendingSpecies) {
+                document.getElementById("reward-card-content").innerHTML = "<p>Erreur lors du tirage de l'espèce.</p>";
+                return;
+            }
+
             const isNew = !inventaireJoueur.includes(pendingSpecies.id);
             
             if(rewardTypePending === "plante") { 
@@ -345,16 +360,4 @@
         }
 
         function updateHUD() {
-            document.getElementById("streak-counter").innerText = streak;
-            document.getElementById("graines-counter").innerText = totalGraines;
-            document.getElementById("animal-progress").innerText = totalGraines % 5;
-        }
-
-        // Au lancement de la page, on charge les données !
-        window.onload = () => { 
-            updateHUD();
-            chargerDonnees();
-        };
-    </script>
-</body>
-</html>
+            document.
