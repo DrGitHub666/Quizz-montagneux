@@ -67,7 +67,7 @@
 <body>
 
     <header>
-        <h1>Exploration des Pyrénées</h1>
+        <h1>Exploration des Pyrénées - V2</h1>
         <p>Découvrez la biodiversité du massif en jouant !</p>
     </header>
 
@@ -96,7 +96,7 @@
             </div>
             <div class="rule-item">
                 <div class="rule-icon">💾</div>
-                <div><strong>Sauvegarde :</strong> Votre progression est automatiquement enregistrée sur ce navigateur.</div>
+                <div><strong>Sauvegarde :</strong> Votre progression est automatiquement enregistrée sur ce navigateur (sauf blocage d'entreprise).</div>
             </div>
 
             <button class="btn-start" onclick="switchTab('qcm')">Commencer l'étude</button>
@@ -138,11 +138,36 @@
         const urlQuestions = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRyc7XJvDEAvWRI_La0nZuo1k7e1PiF3FtxJCGyU5t0Yw21wPgrFNwHRd-_Atf-H6kYBJMg6VHrpMOZ/pub?gid=0&single=true&output=csv";
         const urlEspeces = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRyc7XJvDEAvWRI_La0nZuo1k7e1PiF3FtxJCGyU5t0Yw21wPgrFNwHRd-_Atf-H6kYBJMg6VHrpMOZ/pub?gid=730345326&single=true&output=csv";
 
-        // Variables globales vides (elles seront remplies par Google Sheets)
+        // Variables globales
         let quizNature = [];
         let fauneEtFlore = { plantes: [], animaux: [] };
 
-        // --- DÉCODEUR CSV MAISON (Gère les guillemets et les virgules dans les descriptions) ---
+        // --- VARIABLES DE PROGRESSION (AVEC SÉCURITÉ ANTI-BLOCAGE) ---
+        let inventaireJoueur = [];
+        let totalGraines = 0;
+        let streak = 0;
+        let rewardTypePending = ""; 
+        let pendingSpecies = null;
+
+        // On essaie de lire la sauvegarde, si l'ordinateur bloque, on ignore sans planter
+        try {
+            inventaireJoueur = JSON.parse(localStorage.getItem("inventaire")) || [];
+            totalGraines = JSON.parse(localStorage.getItem("totalGraines")) || 0;
+        } catch (e) {
+            console.warn("Sauvegarde locale bloquée par le navigateur (accès entreprise restreint).");
+        }
+
+        // Fonction pour sauvegarder en toute sécurité
+        function sauvegarderProgression() {
+            try {
+                localStorage.setItem("inventaire", JSON.stringify(inventaireJoueur));
+                localStorage.setItem("totalGraines", totalGraines);
+            } catch (e) {
+                // On ne fait rien, la sauvegarde est juste ignorée
+            }
+        }
+
+        // --- DÉCODEUR CSV ---
         function parseCSV(str) {
             const result = [];
             let row = [], inQuotes = false, value = "";
@@ -160,52 +185,36 @@
         // --- CHARGEMENT DES DONNÉES DEPUIS INTERNET ---
         async function chargerDonnees() {
             try {
-                // 1. Charger les questions
                 const resQ = await fetch(urlQuestions);
                 const textQ = await resQ.text();
-                const rowsQ = parseCSV(textQ).slice(1); // On retire la ligne de titre
+                const rowsQ = parseCSV(textQ).slice(1);
                 
-                // On accepte la ligne tant qu'il y a une question écrite dans la première case
                 quizNature = rowsQ.filter(r => r[0] && r[0].trim() !== "").map(r => {
                     return {
                         q: r[0],
                         options: [r[1] || "Option 1", r[2] || "Option 2", r[3] || "Option 3", r[4] || "Option 4"],
-                        correct: (parseInt(r[5]) || 1) - 1 // -1 car le JavaScript compte à partir de 0
+                        correct: (parseInt(r[5]) || 1) - 1
                     };
                 });
 
-                // 2. Charger les espèces
                 const resE = await fetch(urlEspeces);
                 const textE = await resE.text();
                 const rowsE = parseCSV(textE).slice(1);
                 
-                // On accepte la ligne tant qu'il y a un ID dans la première case
                 rowsE.filter(r => r[0] && r[0].trim() !== "").forEach(r => {
                     const typeEspece = (r[1] || "plante").toLowerCase();
                     const espece = {
-                        id: r[0],
-                        type: typeEspece,
-                        nom: r[2] || "Espèce mystère",
-                        latin: r[3] || "Incognitus",
-                        groupe: r[4] || "Inconnu",
-                        rarete: r[5] || "Commune",
-                        annee: r[6] || "2024",
-                        chance: parseInt(r[7]) || 50,
-                        desc: r[8] || "Description à venir.",
-                        image: r[9] || "" // Si vide, le code mettra le rectangle gris provisoire
+                        id: r[0], type: typeEspece, nom: r[2] || "Espèce", latin: r[3] || "Incognitus",
+                        groupe: r[4] || "Inconnu", rarete: r[5] || "Commune", annee: r[6] || "2024",
+                        chance: parseInt(r[7]) || 50, desc: r[8] || "...", image: r[9] || ""
                     };
                     if (typeEspece === 'plante') fauneEtFlore.plantes.push(espece);
                     else fauneEtFlore.animaux.push(espece);
                 });
 
-                console.log("✅ Données chargées ! Questions trouvées :", quizNature.length);
-                
-                // Sécurité : Vérifie si le tableau des questions est bien rempli
-                if (quizNature.length === 0) {
-                    document.getElementById("question-text").innerHTML = "⚠️ <b>Attention :</b> Votre Google Sheet 'Questions' a bien été lu, mais il semble vide.";
-                } else {
-                    loadQuestion(); // On lance la première question !
-                }
+                console.log("✅ Données chargées !", quizNature.length, "questions.");
+                if (quizNature.length > 0) loadQuestion();
+                else document.getElementById("question-text").innerHTML = "⚠️ Sheet 'Questions' vide.";
                 
             } catch (erreur) {
                 console.error(erreur);
@@ -213,22 +222,21 @@
             }
         }
 
-        // --- VARIABLES DE PROGRESSION ---
-        let inventaireJoueur = JSON.parse(localStorage.getItem("inventaire")) || [];
-        let totalGraines = JSON.parse(localStorage.getItem("totalGraines")) || 0;
-        let streak = 0;
-        let rewardTypePending = ""; 
-        let pendingSpecies = null;
+        // --- NAVIGATION ET JEU ---
+        function switchTab(tab) {
+            document.querySelectorAll(".container").forEach(c => c.classList.add("hidden"));
+            document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+            document.getElementById("section-" + tab).classList.remove("hidden");
+            document.getElementById("nav-" + tab).classList.add("active");
+            if (tab === 'carnet') renderInventory();
+        }
 
-        // Fonction pour générer le design des cartes
         function buildCardHTML(sp, isLocked = false) {
             const isPlante = sp.type === "plante";
             const cssRarete = sp.rarete.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
             const fallbackImg = `this.onerror=null;this.src='https://placehold.co/400x300/f0f0f0/888?text=Image+Bientôt+Disponible';`;
 
-            if (isLocked) {
-                return `<div class="card locked"><h3>???</h3><span class="tag ${cssRarete}">${sp.rarete}</span><p>Continuez à jouer !</p></div>`;
-            }
+            if (isLocked) return `<div class="card locked"><h3>???</h3><span class="tag ${cssRarete}">${sp.rarete}</span><p>Continuez à jouer !</p></div>`;
 
             return `
                 <div class="card ${isPlante ? 'plante' : ''}">
@@ -244,19 +252,8 @@
                 </div>`;
         }
 
-        // --- NAVIGATION ET JEU ---
-        function switchTab(tab) {
-            document.querySelectorAll(".container").forEach(c => c.classList.add("hidden"));
-            document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
-            document.getElementById("section-" + tab).classList.remove("hidden");
-            document.getElementById("nav-" + tab).classList.add("active");
-            if (tab === 'carnet') renderInventory();
-        }
-
         function loadQuestion() {
-            // S'il n'y a pas encore de question chargée (ex: pendant le fetch)
             if (quizNature.length === 0) return; 
-
             const q = quizNature[Math.floor(Math.random() * quizNature.length)];
             document.getElementById("question-text").innerText = q.q;
             document.getElementById("feedback").innerText = "";
@@ -295,12 +292,10 @@
             const emoji = document.getElementById("reward-emoji");
             if (type === "plante") { 
                 document.getElementById("reward-title").innerText = "Une graine mystérieuse...";
-                emoji.innerText = "🌱"; 
-                emoji.className = "emoji-reward anim-bounce"; 
+                emoji.innerText = "🌱"; emoji.className = "emoji-reward anim-bounce"; 
             } else { 
                 document.getElementById("reward-title").innerText = "Un buisson s'agite...";
-                emoji.innerText = "🌿"; 
-                emoji.className = "emoji-reward anim-shake"; 
+                emoji.innerText = "🌿"; emoji.className = "emoji-reward anim-shake"; 
             }
             pendingSpecies = pullGacha(type === "plante" ? fauneEtFlore.plantes : fauneEtFlore.animaux);
         }
@@ -317,23 +312,16 @@
             document.getElementById("reward-animation").classList.add("hidden");
             document.getElementById("reward-result").classList.remove("hidden");
             
-            // Sécurité : au cas où pullGacha ne renverrait rien
             if (!pendingSpecies) {
-                document.getElementById("reward-card-content").innerHTML = "<p>Erreur lors du tirage de l'espèce.</p>";
-                return;
+                document.getElementById("reward-card-content").innerHTML = "<p>Erreur de tirage.</p>"; return;
             }
 
             const isNew = !inventaireJoueur.includes(pendingSpecies.id);
             
-            if(rewardTypePending === "plante") { 
-                totalGraines++; 
-                localStorage.setItem("totalGraines", totalGraines); 
-            }
-
-            if (isNew) {
-                inventaireJoueur.push(pendingSpecies.id);
-                localStorage.setItem("inventaire", JSON.stringify(inventaireJoueur));
-            }
+            if(rewardTypePending === "plante") totalGraines++; 
+            if (isNew) inventaireJoueur.push(pendingSpecies.id);
+            
+            sauvegarderProgression(); // Utilise la sauvegarde sécurisée
 
             document.getElementById("reward-header-text").innerText = isNew ? "✨ Nouvelle découverte !" : "🔁 Vous l'aviez déjà !";
             document.getElementById("reward-card-content").innerHTML = buildCardHTML(pendingSpecies, false);
@@ -343,12 +331,9 @@
             document.getElementById("reward-overlay").classList.add("hidden");
             streak = 0;
             updateHUD();
-            
             if (rewardTypePending === "plante" && totalGraines > 0 && totalGraines % 5 === 0) {
                 setTimeout(() => triggerReward("animal"), 500);
-            } else {
-                loadQuestion();
-            }
+            } else { loadQuestion(); }
         }
 
         function renderInventory() {
@@ -360,4 +345,15 @@
         }
 
         function updateHUD() {
-            document.
+            document.getElementById("streak-counter").innerText = streak;
+            document.getElementById("graines-counter").innerText = totalGraines;
+            document.getElementById("animal-progress").innerText = totalGraines % 5;
+        }
+
+        window.onload = () => { 
+            updateHUD();
+            chargerDonnees();
+        };
+    </script>
+</body>
+</html>
