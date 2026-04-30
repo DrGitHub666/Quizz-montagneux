@@ -29,9 +29,16 @@
         .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .btn-option { padding: 15px; border: 2px solid #2e7d32; background: transparent; color: #2e7d32; border-radius: 8px; font-size: 16px; cursor: pointer; transition: 0.2s; }
         .btn-option:hover { background: #2e7d32; color: white; }
+        
+        /* COULEURS DES RÉPONSES */
+        .btn-option.success-answer { background: #2e7d32 !important; color: white !important; border-color: #2e7d32 !important; }
+        .btn-option.wrong-answer { background: #c62828 !important; color: white !important; border-color: #c62828 !important; }
+        .btn-option.correct-answer { background: #1976d2 !important; color: white !important; border-color: #1976d2 !important; }
+
         .feedback { margin-top: 15px; font-weight: bold; min-height: 24px; }
         .correct { color: #2e7d32; }
         .wrong { color: #c62828; }
+        .info { color: #1976d2; }
 
         /* --- OVERLAY RÉCOMPENSES --- */
         #reward-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; color: white; overflow-y: auto; padding: 20px; box-sizing: border-box; }
@@ -67,7 +74,7 @@
 <body>
 
     <header>
-        <h1>Exploration des Pyrénées </h1>
+        <h1>Exploration des Pyrénées</h1>
         <p>Découvrez la biodiversité du massif en jouant !</p>
     </header>
 
@@ -138,36 +145,29 @@
         const urlQuestions = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRyc7XJvDEAvWRI_La0nZuo1k7e1PiF3FtxJCGyU5t0Yw21wPgrFNwHRd-_Atf-H6kYBJMg6VHrpMOZ/pub?gid=0&single=true&output=csv";
         const urlEspeces = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRyc7XJvDEAvWRI_La0nZuo1k7e1PiF3FtxJCGyU5t0Yw21wPgrFNwHRd-_Atf-H6kYBJMg6VHrpMOZ/pub?gid=730345326&single=true&output=csv";
 
-        // Variables globales
         let quizNature = [];
         let fauneEtFlore = { plantes: [], animaux: [] };
 
-        // --- VARIABLES DE PROGRESSION (AVEC SÉCURITÉ ANTI-BLOCAGE) ---
         let inventaireJoueur = [];
         let totalGraines = 0;
         let streak = 0;
         let rewardTypePending = ""; 
         let pendingSpecies = null;
 
-        // On essaie de lire la sauvegarde, si l'ordinateur bloque, on ignore sans planter
         try {
             inventaireJoueur = JSON.parse(localStorage.getItem("inventaire")) || [];
             totalGraines = JSON.parse(localStorage.getItem("totalGraines")) || 0;
         } catch (e) {
-            console.warn("Sauvegarde locale bloquée par le navigateur (accès entreprise restreint).");
+            console.warn("Sauvegarde locale bloquée.");
         }
 
-        // Fonction pour sauvegarder en toute sécurité
         function sauvegarderProgression() {
             try {
                 localStorage.setItem("inventaire", JSON.stringify(inventaireJoueur));
                 localStorage.setItem("totalGraines", totalGraines);
-            } catch (e) {
-                // On ne fait rien, la sauvegarde est juste ignorée
-            }
+            } catch (e) {}
         }
 
-        // --- DÉCODEUR CSV ---
         function parseCSV(str) {
             const result = [];
             let row = [], inQuotes = false, value = "";
@@ -182,7 +182,6 @@
             return result;
         }
 
-        // --- CHARGEMENT DES DONNÉES DEPUIS INTERNET ---
         async function chargerDonnees() {
             try {
                 const resQ = await fetch(urlQuestions);
@@ -212,17 +211,14 @@
                     else fauneEtFlore.animaux.push(espece);
                 });
 
-                console.log("✅ Données chargées !", quizNature.length, "questions.");
                 if (quizNature.length > 0) loadQuestion();
                 else document.getElementById("question-text").innerHTML = "⚠️ Sheet 'Questions' vide.";
                 
             } catch (erreur) {
-                console.error(erreur);
                 document.getElementById("question-text").innerText = "❌ Erreur réseau. Veuillez vérifier que votre Google Sheet est bien public.";
             }
         }
 
-        // --- NAVIGATION ET JEU ---
         function switchTab(tab) {
             document.querySelectorAll(".container").forEach(c => c.classList.add("hidden"));
             document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
@@ -265,16 +261,22 @@
                 btn.className = "btn-option";
                 btn.innerText = opt;
                 btn.onclick = () => {
-                    document.querySelectorAll(".btn-option").forEach(b => b.disabled = true);
+                    const allBtns = document.querySelectorAll(".btn-option");
+                    // Désactive tous les boutons après le clic
+                    allBtns.forEach(b => b.disabled = true);
+                    
                     if (i === q.correct) {
-                        document.getElementById("feedback").innerHTML = "<span class='correct'>✔ Bravo !</span>";
+                        btn.classList.add("success-answer");
+                        document.getElementById("feedback").innerHTML = "<span class='correct'>✔ Excellente réponse !</span>";
                         streak++;
                         if (streak >= 3) setTimeout(() => triggerReward("plante"), 1000);
                         else setTimeout(loadQuestion, 1500);
                     } else {
-                        document.getElementById("feedback").innerHTML = "<span class='wrong'>✖ Erreur, série perdue.</span>";
+                        btn.classList.add("wrong-answer");
+                        allBtns[q.correct].classList.add("correct-answer");
+                        document.getElementById("feedback").innerHTML = "<span class='wrong'>✖ Oups... La bonne réponse est en bleu !</span>";
                         streak = 0;
-                        setTimeout(loadQuestion, 2000);
+                        setTimeout(loadQuestion, 2500); // 2,5 secondes pour laisser le temps de lire
                     }
                     updateHUD();
                 };
@@ -283,7 +285,6 @@
             updateHUD();
         }
 
-        // --- SYSTÈME DE RÉCOMPENSES ---
         function triggerReward(type) {
             rewardTypePending = type;
             document.getElementById("reward-animation").classList.remove("hidden");
@@ -321,7 +322,7 @@
             if(rewardTypePending === "plante") totalGraines++; 
             if (isNew) inventaireJoueur.push(pendingSpecies.id);
             
-            sauvegarderProgression(); // Utilise la sauvegarde sécurisée
+            sauvegarderProgression();
 
             document.getElementById("reward-header-text").innerText = isNew ? "✨ Nouvelle découverte !" : "🔁 Vous l'aviez déjà !";
             document.getElementById("reward-card-content").innerHTML = buildCardHTML(pendingSpecies, false);
