@@ -24,8 +24,8 @@
 
         /* --- BARRE DE STATS (HUD) --- */
         .stats-bar { display: flex; justify-content: space-around; align-items: center; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; font-weight: bold; color: #2e7d32; font-size: 15px; }
-        .btn-pull-animal { background: #fbc02d; color: #d84315; border: 2px solid #f57f17; border-radius: 50%; width: 35px; height: 35px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: 0.2s; }
-        .btn-pull-animal:hover { transform: scale(1.1); background: #fdd835; }
+        .btn-pull-animal { background: #e53935; color: white; border: 2px solid #b71c1c; border-radius: 50%; width: 35px; height: 35px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: 0.2s; }
+        .btn-pull-animal:hover { transform: scale(1.1); background: #b71c1c; }
 
         /* --- QCM --- */
         .question-box { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
@@ -50,20 +50,25 @@
         .card-reveal { background: transparent; padding: 0; border-radius: 10px; max-width: 350px; width: 100%; animation: fadeIn 0.8s; }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
 
-        /* --- CARNET DE TERRAIN --- */
-        .category-title { color: #2e7d32; border-bottom: 2px solid #e8f5e9; padding-bottom: 10px; margin-top: 40px; margin-bottom: 20px; text-align: left; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
+        /* --- CARNET DE TERRAIN (DESIGN SÉPARÉ) --- */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; margin-top: 20px; }
         .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); border-top: 5px solid #2e7d32; text-align: left; transition: transform 0.2s; }
         .card:hover { transform: translateY(-5px); }
-        .card.locked { filter: grayscale(100%); opacity: 0.6; border-top: 5px solid #999; text-align: center; }
+        .card.locked { filter: grayscale(100%); opacity: 0.6; border-top: 5px solid #999 !important; text-align: center; }
+        
+        /* THEMES DES CARTES DE BLOQUÉES */
         .card.plante { border-top: 5px solid #fbc02d; }
+        .card.animal { border-top: 5px solid #e53935; } /* Rouge animal */
+
         .card h3 { margin-top: 0; margin-bottom: 5px; color: #2e7d32; font-size: 24px; }
         .card.plante h3 { color: #f57f17; }
+        .card.animal h3 { color: #e53935; } /* Rouge animal */
+
         .latin { font-style: italic; color: #777; font-size: 16px; display: block; margin-bottom: 20px; }
         .tags-container { margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
         .tag { padding: 6px 14px; border-radius: 20px; font-size: 14px; }
         .tag.groupe-plante { background: #fff9c4; color: #f57f17; }
-        .tag.groupe-animal { background: #e8f5e9; color: #1b5e20; }
+        .tag.groupe-animal { background: #ffebee; color: #b71c1c; } /* Rouge tag */
         .tag.commune { background: #e0f7fa; color: #006064; }
         .tag.rare { background: #fce4ec; color: #c2185b; }
         .tag.epique { background: #f3e5f5; color: #4a148c; }
@@ -99,8 +104,8 @@
                 <div><strong>Niveaux :</strong> Toutes les 5 graines, vous passez au niveau supérieur !</div>
             </div>
             <div class="rule-item">
-                <div class="rule-icon">🐻</div>
-                <div><strong>Rencontres :</strong> À chaque passage de niveau, vous gagnez un "Jeton Animal". Cliquez sur le bouton jaune en haut pour déclencher la rencontre quand vous le souhaitez !</div>
+                <div class="rule-icon">🐾</div>
+                <div><strong>Rencontres :</strong> À chaque passage de niveau, vous gagnez un "Jeton Animal". Cliquez sur le bouton rouge en haut pour déclencher la rencontre quand vous le souhaitez !</div>
             </div>
 
             <button class="btn-start" onclick="switchTab('qcm')">Commencer l'étude</button>
@@ -113,7 +118,7 @@
             <div>🔥 Série : <span id="streak-counter">0</span> / 3</div>
             <div>🌱 Graines : <span id="graines-counter">0</span> <br><span style="font-size: 12px; font-weight: normal;">(Niv. Suivant : <span id="animal-progress">0</span> / 5)</span></div>
             <div>
-                🐻 À découvrir : 
+                🐾 À découvrir : 
                 <button id="btn-animal-pull" onclick="pullAnimal()" class="btn-pull-animal hidden anim-bounce">0</button>
                 <span id="no-animal-text">0</span>
             </div>
@@ -127,11 +132,13 @@
     </div>
 
     <div id="section-carnet" class="container hidden">
-        <h2 class="category-title">🌸 Flore Pyrénéenne</h2>
-        <div id="grid-plantes" class="grid"></div>
+        <nav style="background:transparent; border-bottom: 2px solid #e8f5e9; margin-bottom: 20px;">
+            <button id="subnav-plantes" class="active" onclick="switchSubTab('plantes')" style="color:#2e7d32; border-bottom: 2px solid transparent;">🌸 Flore</button>
+            <button id="subnav-animaux" onclick="switchSubTab('animaux')" style="color:#2e7d32; border-bottom: 2px solid transparent;">🐾 Faune</button>
+        </nav>
         
-        <h2 class="category-title">🐻 Faune Pyrénéenne</h2>
-        <div id="grid-animaux" class="grid"></div>
+        <div id="grid-plantes" class="grid"></div>
+        <div id="grid-animaux" class="grid hidden"></div>
     </div>
 
     <div id="reward-overlay" class="hidden">
@@ -158,7 +165,7 @@
         let inventaireJoueur = [];
         let totalGraines = 0;
         let streak = 0;
-        let animauxTires = 0; // NOUVEAU : Compte le nombre d'animaux déjà ouverts par le joueur
+        let animauxTires = 0; 
         
         let rewardTypePending = ""; 
         let pendingSpecies = null;
@@ -229,9 +236,31 @@
             document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
             document.getElementById("section-" + tab).classList.remove("hidden");
             document.getElementById("nav-" + tab).classList.add("active");
-            if (tab === 'carnet') renderInventory();
+            if (tab === 'carnet') { 
+                switchSubTab('plantes'); // Défaut sur plantes quand on ouvre le carnet
+                renderInventory(); 
+            }
         }
 
+        // NOUEAU : GESTION DES SOUS-ONGLETS DU CARNET
+        function switchSubTab(subTab) {
+            // Cache les grilles
+            document.getElementById("grid-plantes").classList.add("hidden");
+            document.getElementById("grid-animaux").classList.add("hidden");
+            // Enlève l'active des boutons subnav
+            document.getElementById("subnav-plantes").classList.remove("active");
+            document.getElementById("subnav-plantes").style.borderBottomColor = "transparent";
+            document.getElementById("subnav-animaux").classList.remove("active");
+            document.getElementById("subnav-animaux").style.borderBottomColor = "transparent";
+
+            // Montre la grille choisie
+            document.getElementById("grid-" + subTab).classList.remove("hidden");
+            // Active le bouton subnav
+            document.getElementById("subnav-" + subTab).classList.add("active");
+            document.getElementById("subnav-" + subTab).style.borderBottomColor = "#4caf50";
+        }
+
+        // MAJ : APPLICATION DES CLASSES PLANTE/ANIMAL SUR LA CARTE
         function buildCardHTML(sp, isLocked = false) {
             const isPlante = sp.type === "plante";
             const cssRarete = sp.rarete.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -240,8 +269,7 @@
             if (isLocked) return `<div class="card locked"><h3>???</h3><span class="tag ${cssRarete}">${sp.rarete}</span><p>Continuez à explorer !</p></div>`;
 
             return `
-                <div class="card ${isPlante ? 'plante' : ''}">
-                    <img src="${sp.image}" class="species-img" onerror="${fallbackImg}">
+                <div class="card ${isPlante ? 'plante' : 'animal'}"> <img src="${sp.image}" class="species-img" onerror="${fallbackImg}">
                     <h3>${sp.nom}</h3>
                     <span class="latin">${sp.latin}</span>
                     <div class="tags-container">
@@ -289,7 +317,6 @@
             updateHUD();
         }
 
-        // LE BOUTON MANUEL POUR LES ANIMAUX
         function pullAnimal() {
             let niveauActuel = Math.floor(totalGraines / 5);
             let animauxEnAttente = niveauActuel - animauxTires;
@@ -302,6 +329,7 @@
             }
         }
 
+        // MAJ : ÉMOJI PATTE POUR L'ANIMAL
         function triggerReward(type) {
             rewardTypePending = type;
             document.getElementById("reward-animation").classList.remove("hidden");
@@ -313,7 +341,8 @@
                 emoji.innerText = "🌱"; emoji.className = "emoji-reward anim-bounce"; 
             } else { 
                 document.getElementById("reward-title").innerText = "Un buisson s'agite...";
-                emoji.innerText = "🐾"; emoji.className = "emoji-reward anim-shake"; 
+                emoji.innerText = "🐾"; // MAJ ICI : Émoji Patte
+                emoji.className = "emoji-reward anim-shake"; 
             }
             pendingSpecies = pullGacha(type === "plante" ? fauneEtFlore.plantes : fauneEtFlore.animaux);
         }
@@ -345,11 +374,10 @@
             document.getElementById("reward-overlay").classList.add("hidden");
             streak = 0;
             updateHUD();
-            // L'animal ne se lance plus tout seul, on relance juste une question
             if (rewardTypePending === "plante") { loadQuestion(); }
         }
 
-        // CARNET SÉPARÉ EN DEUX CATÉGORIES
+        // MAJ : RENDU DANS DEUX GRILLES SÉPARÉES
         function renderInventory() {
             const gridPlantes = document.getElementById("grid-plantes");
             const gridAnimaux = document.getElementById("grid-animaux");
@@ -364,17 +392,14 @@
             });
         }
 
-        // MISE A JOUR DES STATS ET DU NOUVEAU BOUTON
         function updateHUD() {
             document.getElementById("streak-counter").innerText = streak;
             document.getElementById("graines-counter").innerText = totalGraines;
             
-            // Calcul du niveau (1 niveau = 5 graines)
             let niveauActuel = Math.floor(totalGraines / 5);
             document.getElementById("niveau-joueur").innerText = niveauActuel;
             document.getElementById("animal-progress").innerText = totalGraines % 5;
 
-            // Calcul des animaux à ouvrir
             let animauxEnAttente = niveauActuel - animauxTires;
             const btnAnimal = document.getElementById("btn-animal-pull");
             const textNoAnimal = document.getElementById("no-animal-text");
