@@ -40,9 +40,17 @@
         .correct { color: #2e7d32; }
         .wrong { color: #c62828; }
 
-        /* --- OVERLAY RÉCOMPENSES AVEC ANIMATION 3D --- */
+        /* --- OVERLAY RÉCOMPENSES AVEC ANIMATION GACHA --- */
         #reward-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; color: white; padding: 10px; box-sizing: border-box; }
         
+        .emoji-reward { font-size: 100px; cursor: pointer; user-select: none; margin: 20px 0; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-30px); } }
+        .anim-bounce { animation: bounce 1s infinite; }
+        @keyframes popUp { 0% { transform: scale(0) translateY(100px); opacity: 0;} 80% { transform: scale(1.1) translateY(-10px); opacity: 1;} 100% { transform: scale(1) translateY(0); opacity: 1;} }
+        .anim-popup { animation: popUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes shake { 0% { transform: rotate(0deg) scale(1); } 25% { transform: rotate(5deg) scale(1.05); } 50% { transform: rotate(0eg) scale(1); } 75% { transform: rotate(-5deg) scale(1.05); } 100% { transform: rotate(0deg) scale(1); } }
+        .anim-shake { animation: shake 0.3s; }
+
         /* Conteneur de la carte 3D */
         .flip-container { perspective: 1000px; width: 300px; height: 450px; margin: 10px auto; cursor: pointer; }
         .flipper { transition: 0.8s; transform-style: preserve-3d; position: relative; width: 100%; height: 100%; }
@@ -53,16 +61,14 @@
         .front { display: flex; flex-direction: column; justify-content: center; align-items: center; border: 3px solid #e8f5e9; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         .front.plante-bg { background: linear-gradient(135deg, #2e7d32, #1b5e20); }
         .front.animal-bg { background: linear-gradient(135deg, #e53935, #b71c1c); }
-        .front .mystere-emoji { font-size: 80px; margin-bottom: 20px; animation: pulse 1.5s infinite; }
-        
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
         
         /* Face avant (La vraie carte) */
         .back { transform: rotateY(180deg); }
         
-        /* Redimensionnement de la carte spécifique pour l'overlay (pour que l'anecdote rentre) */
+        /* Redimensionnement pour que l'anecdote et l'image rentrent parfaitement */
         .back .card { margin: 0; height: 100%; box-sizing: border-box; overflow-y: auto; padding: 15px; }
-        .back .species-img { height: 130px; margin-bottom: 10px; }
+        /* MAJ : object-fit: contain pour ne pas rogner l'image ! */
+        .back .species-img { height: 130px; object-fit: contain; background-color: transparent; margin-bottom: 10px; }
         .back h3 { font-size: 20px; margin-bottom: 2px; }
         .back .latin { margin-bottom: 10px; font-size: 14px; }
         .back .tags-container { margin-bottom: 10px; }
@@ -162,14 +168,18 @@
     <div id="reward-overlay" class="hidden">
         <h2 id="reward-header-text" style="text-align:center; color:white; margin-bottom: 10px; min-height: 35px;">Trouvaille !</h2>
         
-        <div class="flip-container" id="flip-card" onclick="flipCard()">
+        <div id="reward-emoji-container" style="text-align:center;">
+            <div class="emoji-reward anim-bounce" id="reward-emoji" onclick="spawnCard()">🌱</div>
+            <p style="font-weight: bold; font-size: 18px; color:white;">Cliquez sur la trouvaille !</p>
+        </div>
+
+        <div class="flip-container hidden" id="flip-card" onclick="handleCardClick()">
             <div class="flipper">
                 <div class="front" id="card-front">
-                    <div class="mystere-emoji" id="reward-emoji">🌱</div>
-                    <p style="font-weight: bold; font-size: 18px;">Cliquez pour révéler</p>
+                    <div style="font-size: 60px; margin-bottom: 20px;">❓</div>
+                    <p id="front-rarity-text" style="font-weight: bold; font-size: 24px; color: white; text-shadow: 1px 1px 3px black; transition: 0.3s;">Ouvrir...</p>
                 </div>
-                <div class="back" id="reward-card-content">
-                </div>
+                <div class="back" id="reward-card-content"></div>
             </div>
         </div>
 
@@ -190,7 +200,11 @@
         
         let rewardTypePending = ""; 
         let pendingSpecies = null;
-        let isCardFlipping = false; // Sécurité pour empêcher de cliquer plusieurs fois pendant l'animation
+        
+        // Variables pour la nouvelle animation de rareté
+        let isCardFlipping = false;
+        let revealStep = 0;
+        let targetRevealSteps = 1; 
 
         try {
             inventaireJoueur = JSON.parse(localStorage.getItem("inventaire")) || [];
@@ -227,11 +241,7 @@
                 const rowsQ = parseCSV(textQ).slice(1);
                 
                 quizNature = rowsQ.filter(r => r[0] && r[0].trim() !== "").map(r => {
-                    return {
-                        q: r[0],
-                        options: [r[1] || "Option 1", r[2] || "Option 2", r[3] || "Option 3", r[4] || "Option 4"],
-                        correct: (parseInt(r[5]) || 1) - 1
-                    };
+                    return { q: r[0], options: [r[1] || "Option 1", r[2] || "Option 2", r[3] || "Option 3", r[4] || "Option 4"], correct: (parseInt(r[5]) || 1) - 1 };
                 });
 
                 const resE = await fetch(urlEspeces);
@@ -258,10 +268,7 @@
             document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
             document.getElementById("section-" + tab).classList.remove("hidden");
             document.getElementById("nav-" + tab).classList.add("active");
-            if (tab === 'carnet') { 
-                switchSubTab('plantes'); 
-                renderInventory(); 
-            }
+            if (tab === 'carnet') { switchSubTab('plantes'); renderInventory(); }
         }
 
         function switchSubTab(subTab) {
@@ -271,7 +278,6 @@
             document.getElementById("subnav-plantes").style.borderBottomColor = "transparent";
             document.getElementById("subnav-animaux").classList.remove("active");
             document.getElementById("subnav-animaux").style.borderBottomColor = "transparent";
-
             document.getElementById("grid-" + subTab).classList.remove("hidden");
             document.getElementById("subnav-" + subTab).classList.add("active");
             document.getElementById("subnav-" + subTab).style.borderBottomColor = "#4caf50";
@@ -337,7 +343,6 @@
         function pullAnimal() {
             let niveauActuel = Math.floor(totalGraines / 5);
             let animauxEnAttente = niveauActuel - animauxTires;
-            
             if (animauxEnAttente > 0) {
                 animauxTires++;
                 sauvegarderProgression();
@@ -346,51 +351,99 @@
             }
         }
 
+        // ETAPE 1 : Afficher l'émoji
         function triggerReward(type) {
             rewardTypePending = type;
             isCardFlipping = false;
             
-            // Préparation de l'interface de récompense
+            // Préparation de l'interface
             document.getElementById("reward-overlay").classList.remove("hidden");
-            document.getElementById("flip-card").classList.remove("flip");
+            document.getElementById("reward-emoji-container").classList.remove("hidden");
+            document.getElementById("flip-card").classList.add("hidden");
+            document.getElementById("flip-card").classList.remove("flip", "anim-popup");
             document.getElementById("btn-continue-reward").classList.add("hidden");
-            document.getElementById("reward-header-text").innerText = type === "plante" ? "Graine mystérieuse obtenue !" : "Un buisson s'agite...";
+            
+            document.getElementById("reward-header-text").innerText = type === "plante" ? "Graine obtenue !" : "Un buisson s'agite...";
+            
+            const emoji = document.getElementById("reward-emoji");
+            emoji.innerText = type === "plante" ? "🌱" : "🐾";
+
+            // On tire au sort l'espèce en arrière-plan
+            pendingSpecies = pullGacha(type === "plante" ? fauneEtFlore.plantes : fauneEtFlore.animaux);
+        }
+
+        // ETAPE 2 : Clic sur l'émoji -> Fait apparaître la carte mystère
+        function spawnCard() {
+            document.getElementById("reward-emoji-container").classList.add("hidden");
+            
+            const flipContainer = document.getElementById("flip-card");
+            flipContainer.classList.remove("hidden");
+            flipContainer.classList.add("anim-popup"); // Animation d'apparition
             
             // Design du dos mystère
             const frontCard = document.getElementById("card-front");
-            const emoji = document.getElementById("reward-emoji");
-            if (type === "plante") {
-                frontCard.className = "front plante-bg";
-                emoji.innerText = "🌱";
-            } else {
-                frontCard.className = "front animal-bg";
-                emoji.innerText = "🐾";
-            }
-
-            // Tirage au sort
-            pendingSpecies = pullGacha(type === "plante" ? fauneEtFlore.plantes : fauneEtFlore.animaux);
+            frontCard.className = "front " + (rewardTypePending === "plante" ? "plante-bg" : "animal-bg");
             
-            // Injection de la vraie carte dans la face cachée (sans l'enregistrer tout de suite)
+            const rarityText = document.getElementById("front-rarity-text");
+            rarityText.innerText = "Ouvrir...";
+            rarityText.style.color = "white";
+            rarityText.style.transform = "scale(1)";
+
+            // On calcule combien de clics il faudra selon la rareté
+            revealStep = 0;
+            let r = pendingSpecies.rarete.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            if (r.includes('legendaire')) targetRevealSteps = 4;
+            else if (r.includes('epique')) targetRevealSteps = 3;
+            else if (r.includes('rare')) targetRevealSteps = 2;
+            else targetRevealSteps = 1; // Commune
+            
+            // On injecte la vraie carte dans le dos
             document.getElementById("reward-card-content").innerHTML = buildCardHTML(pendingSpecies, false);
         }
 
-        // LA NOUVELLE FONCTION DE RETOURNEMENT 3D
-        function flipCard() {
+        // ETAPE 3 : Clics successifs sur la carte pour monter la rareté
+        function handleCardClick() {
             if (isCardFlipping || !pendingSpecies) return;
-            isCardFlipping = true; // Empêche de recliquer pendant que ça tourne
 
-            const flipContainer = document.getElementById("flip-card");
-            flipContainer.classList.add("flip");
+            revealStep++;
+            const rarityText = document.getElementById("front-rarity-text");
+            const container = document.getElementById("flip-card");
 
-            // Vérification si c'est un doublon
+            // Petit effet de secousse à chaque clic
+            container.classList.remove("anim-shake");
+            void container.offsetWidth; // Force le redessin
+            container.classList.add("anim-shake");
+
+            // Mise à jour du texte selon l'étape de clic
+            if (revealStep === 1) {
+                rarityText.innerText = "⭐ Commune..."; rarityText.style.color = "#e0f7fa";
+            } else if (revealStep === 2) {
+                rarityText.innerText = "⭐⭐ Rare !"; rarityText.style.color = "#f48fb1";
+            } else if (revealStep === 3) {
+                rarityText.innerText = "⭐⭐⭐ Épique !!"; rarityText.style.color = "#ce93d8";
+            } else if (revealStep === 4) {
+                rarityText.innerText = "🌟 LÉGENDAIRE 🌟"; rarityText.style.color = "#ffeb3b"; rarityText.style.transform = "scale(1.2)";
+            }
+
+            // Si on a atteint le nombre de clics nécessaires pour cette carte
+            if (revealStep >= targetRevealSteps) {
+                isCardFlipping = true;
+                // On attend une demi-seconde pour laisser le joueur lire la rareté, puis on retourne !
+                setTimeout(() => { doActualFlip(); }, 500); 
+            }
+        }
+
+        // ETAPE 4 : Le retournement final
+        function doActualFlip() {
+            document.getElementById("flip-card").classList.add("flip");
+
             const isNew = !inventaireJoueur.includes(pendingSpecies.id);
-            
             if(rewardTypePending === "plante") totalGraines++; 
             if (isNew) inventaireJoueur.push(pendingSpecies.id);
             
             sauvegarderProgression();
 
-            // Révélation du texte après la moitié du retournement (400ms)
+            // On affiche le bouton Continuer quand la carte est retournée (400ms)
             setTimeout(() => {
                 document.getElementById("reward-header-text").innerText = isNew ? "✨ Nouvelle découverte !" : "🔁 Vous l'aviez déjà !";
                 document.getElementById("btn-continue-reward").classList.remove("hidden");
@@ -449,10 +502,7 @@
             }
         }
 
-        window.onload = () => { 
-            updateHUD();
-            chargerDonnees();
-        };
+        window.onload = () => { updateHUD(); chargerDonnees(); };
     </script>
 </body>
 </html>
