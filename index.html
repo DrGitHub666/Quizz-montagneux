@@ -8,7 +8,6 @@
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f9f4; color: #333; margin: 0; padding: 0; }
         header { background-color: #2e7d32; color: white; padding: 20px; text-align: center; }
         
-        /* MAJ : flex-wrap pour que le menu tienne bien sur mobile avec les nouveaux boutons */
         nav { display: flex; justify-content: center; background: #1b5e20; padding: 10px; flex-wrap: wrap; gap: 5px; }
         nav button { background: none; border: none; color: white; font-size: 16px; font-weight: bold; cursor: pointer; padding: 10px 15px; border-radius: 5px; transition: 0.3s; }
         nav button:hover, nav button.active { background: #4caf50; }
@@ -52,7 +51,21 @@
         .anim-popup { animation: popUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         @keyframes shake { 0% { transform: rotate(0deg) scale(1); } 25% { transform: rotate(5deg) scale(1.05); } 50% { transform: rotate(0eg) scale(1); } 75% { transform: rotate(-5deg) scale(1.05); } 100% { transform: rotate(0deg) scale(1); } }
         .anim-shake { animation: shake 0.3s; }
-        @keyframes intenseShake { 0% { transform: translate(2px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-2deg); } 20% { transform: translate(-3px, 0px) rotate(2deg); } 30% { transform: translate(3px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(2deg); } 50% { transform: translate(-1px, 2px) rotate(-2deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 70% { transform: translate(3px, 1px) rotate(-2deg); } 80% { transform: translate(-1px, -1px) rotate(2deg); } 90% { transform: translate(1px, 2px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-2deg); } }
+        
+        /* MAJ: Tremblement plus subtil (moins violent) */
+        @keyframes intenseShake { 
+            0% { transform: translate(1px, 0px) rotate(0deg); } 
+            10% { transform: translate(-1px, -1px) rotate(-1deg); } 
+            20% { transform: translate(-1px, 0px) rotate(1deg); } 
+            30% { transform: translate(1px, 1px) rotate(0deg); } 
+            40% { transform: translate(0px, -1px) rotate(1deg); } 
+            50% { transform: translate(-1px, 1px) rotate(-1deg); } 
+            60% { transform: translate(-1px, 0px) rotate(0deg); } 
+            70% { transform: translate(1px, 0px) rotate(-1deg); } 
+            80% { transform: translate(0px, -1px) rotate(1deg); } 
+            90% { transform: translate(1px, 1px) rotate(0deg); } 
+            100% { transform: translate(0px, -1px) rotate(-1deg); } 
+        }
         .anim-intense-shake { animation: intenseShake 0.1s infinite; }
 
         .flip-container { perspective: 1000px; width: 320px; height: 500px; margin: 10px auto; cursor: pointer; }
@@ -99,7 +112,6 @@
         .duplicate-badge { position: absolute; bottom: 15px; right: 15px; background: #2e7d32; color: white; border-radius: 50%; width: 35px; height: 35px; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         .card.animal .duplicate-badge { background: #e53935; }
 
-        /* Box de chantier pour l'inventaire et les stats */
         .wip-box { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); margin-top: 20px; color: #555; }
         .wip-box h3 { color: #2e7d32; font-size: 24px; margin-bottom: 10px; }
         .stats-highlight { font-size: 28px; color: #1b5e20; font-weight: bold; margin: 10px 0; }
@@ -176,13 +188,13 @@
         
         <div id="panel-potions" class="wip-box">
             <h3>🧪 Laboratoire d'Alchimie</h3>
-            <p>Cet espace est en cours d'aménagement. Bientôt, vous pourrez utiliser vos doublons de plantes et d'animaux pour créer des potions secrètes et redonner vie à des espèces disparues !</p>
+            <p>Cet espace est en cours d'aménagement. Bientôt, vous pourrez conserver vos doublons pour concocter des potions et redonner vie à des espèces légendaires éteintes ! Allez-vous revendre vos trouvailles ou les garder pour l'artisanat ?</p>
             <div style="font-size: 50px; margin-top: 20px;">⚗️✨</div>
         </div>
         
         <div id="panel-tresorerie" class="wip-box hidden">
-            <h3>💰 Banque de l'Explorateur</h3>
-            <p>Bientôt, vos découvertes vous rapporteront des pièces d'or. Vous pourrez utiliser cet or pour débloquer des expéditions vers de nouvelles régions du monde !</p>
+            <h3>💰 Marché de l'Explorateur</h3>
+            <p>Bientôt, vous pourrez revendre vos doublons. Une carte commune vaudra 1 pièce d'or, et les prix s'envoleront avec la rareté ! Avec cet or, vous financerez de futures expéditions vers de nouvelles régions...</p>
             <div style="font-size: 50px; margin-top: 20px;">🪙🗺️</div>
         </div>
     </div>
@@ -190,7 +202,6 @@
     <div id="section-statistiques" class="container hidden">
         <div class="wip-box">
             <h3>📊 Profil de l'Écologue</h3>
-            
             <p>Voici votre progression actuelle :</p>
             <div class="stats-highlight">Niveau <span id="stat-niveau-affichage">0</span></div>
             <div id="stat-grade-affichage" class="grade-badge">Observateur Curieux</div>
@@ -308,7 +319,6 @@
             
             if (tab === 'carnet') { switchSubTabCarnet('plantes'); renderInventory(); }
             if (tab === 'inventaire') { switchSubTabInventaire('potions'); }
-            // Mettre à jour les stats affichées si on va sur l'onglet
             if (tab === 'statistiques') { updateHUD(); } 
         }
 
@@ -478,10 +488,11 @@
                 void container.offsetWidth;
                 container.classList.add("anim-intense-shake");
                 
+                // MAJ: Délai allongé pour profiter du tremblement (1.8s)
                 setTimeout(() => { 
                     container.classList.remove("anim-intense-shake");
                     doActualFlip(); 
-                }, 1200); 
+                }, 1800); 
             }
         }
 
@@ -548,7 +559,6 @@
             document.getElementById("niveau-joueur").innerText = niveauActuel;
             document.getElementById("animal-progress").innerText = totalGraines % 5;
 
-            // Mise à jour de l'onglet Statistiques
             document.getElementById("stat-niveau-affichage").innerText = niveauActuel;
             document.getElementById("stat-grade-affichage").innerText = getNomGrade(niveauActuel);
 
