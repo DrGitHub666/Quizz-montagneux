@@ -49,42 +49,38 @@
         @keyframes popUp { 0% { transform: scale(0) translateY(100px); opacity: 0;} 80% { transform: scale(1.1) translateY(-10px); opacity: 1;} 100% { transform: scale(1) translateY(0); opacity: 1;} }
         .anim-popup { animation: popUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         
-        /* Secousses */
         @keyframes shake { 0% { transform: rotate(0deg) scale(1); } 25% { transform: rotate(5deg) scale(1.05); } 50% { transform: rotate(0eg) scale(1); } 75% { transform: rotate(-5deg) scale(1.05); } 100% { transform: rotate(0deg) scale(1); } }
         .anim-shake { animation: shake 0.3s; }
         @keyframes intenseShake { 0% { transform: translate(2px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-2deg); } 20% { transform: translate(-3px, 0px) rotate(2deg); } 30% { transform: translate(3px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(2deg); } 50% { transform: translate(-1px, 2px) rotate(-2deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 70% { transform: translate(3px, 1px) rotate(-2deg); } 80% { transform: translate(-1px, -1px) rotate(2deg); } 90% { transform: translate(1px, 2px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-2deg); } }
         .anim-intense-shake { animation: intenseShake 0.1s infinite; }
 
-        /* Conteneur de la carte 3D */
         .flip-container { perspective: 1000px; width: 320px; height: 500px; margin: 10px auto; cursor: pointer; }
         .flipper { transition: 1.5s ease-in-out; transform-style: preserve-3d; position: relative; width: 100%; height: 100%; }
         .flip-container.flip .flipper { transform: rotateY(180deg); }
         .front, .back { backface-visibility: hidden; position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 12px; }
         
-        /* Dos mystère de la carte */
         .front { display: flex; flex-direction: column; justify-content: center; align-items: center; border: 3px solid #e8f5e9; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         .front.plante-bg { background: linear-gradient(135deg, #2e7d32, #1b5e20); }
         .front.animal-bg { background: linear-gradient(135deg, #e53935, #b71c1c); }
         
-        /* Face avant (La vraie carte) */
         .back { transform: rotateY(180deg); }
         
-        /* Style spécifique de la carte quand elle est révélée (pour voir l'anecdote) */
-        .back .card { margin: 0; height: 100%; box-sizing: border-box; overflow-y: auto; padding: 20px; }
+        .back .card { margin: 0; height: 100%; box-sizing: border-box; overflow-y: auto; padding: 20px; position: relative; }
         .back .species-img { width: 100%; height: 140px; object-fit: contain; background-color: transparent; margin-bottom: 12px; }
         .back h3 { font-size: 22px; margin-bottom: 4px; }
         .back .latin { margin-bottom: 12px; font-size: 14px; }
         .back .tags-container { margin-bottom: 12px; }
         .back .tag { padding: 5px 12px; font-size: 13px; }
-        /* L'anecdote bien visible */
-        .back .description { font-size: 14px; line-height: 1.5; color: #444; border-top: 1px dashed #ccc; padding-top: 12px; margin-top: 12px; font-style: italic; }
+        /* MAJ : Plus de pointillés, just un beau texte italique aéré */
+        .back .description { font-size: 14px; line-height: 1.5; color: #444; font-style: italic; margin-top: 10px; }
 
         .btn-close-reward { margin-top: 20px; padding: 12px 25px; background: #4caf50; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; width: 320px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: 0.2s; }
         .btn-close-reward:hover { background: #388e3c; }
 
         /* --- CARNET DE TERRAIN (DESIGN NORMAL) --- */
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; margin-top: 20px; }
-        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); border-top: 5px solid #2e7d32; text-align: left; transition: transform 0.2s; }
+        /* MAJ : Ajout de position relative sur la carte pour placer le badge */
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); border-top: 5px solid #2e7d32; text-align: left; transition: transform 0.2s; position: relative; }
         .card:hover { transform: translateY(-5px); }
         .card.locked { filter: grayscale(100%); opacity: 0.6; border-top: 5px solid #999 !important; text-align: center; }
         
@@ -104,6 +100,10 @@
         .tag.legendaire { background: #ffebee; color: #b71c1c; font-weight: bold; }
         .species-img { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 15px; background-color: #f0f0f0; }
         .description { font-size: 14px; line-height: 1.5; color: #444; }
+
+        /* MAJ : Badge de compteur de doublons */
+        .duplicate-badge { position: absolute; bottom: 15px; right: 15px; background: #2e7d32; color: white; border-radius: 50%; width: 35px; height: 35px; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .card.animal .duplicate-badge { background: #e53935; }
     </style>
 </head>
 <body>
@@ -206,7 +206,6 @@
         let rewardTypePending = ""; 
         let pendingSpecies = null;
         
-        // Variables pour la nouvelle animation de rareté
         let isCardFlipping = false;
         let revealStep = 0;
         let targetRevealSteps = 1; 
@@ -288,12 +287,16 @@
             document.getElementById("subnav-" + subTab).style.borderBottomColor = "#4caf50";
         }
 
-        function buildCardHTML(sp, isLocked = false) {
+        // MAJ : Ajout du compteur "count" pour afficher le badge
+        function buildCardHTML(sp, count = 0) {
             const isPlante = sp.type === "plante";
             const cssRarete = sp.rarete.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
             const fallbackImg = `this.onerror=null;this.src='https://placehold.co/400x300/f0f0f0/888?text=Image+Bientôt+Disponible';`;
 
-            if (isLocked) return `<div class="card locked"><h3>???</h3><span class="tag ${cssRarete}">${sp.rarete}</span><p>Continuez à explorer !</p></div>`;
+            if (count === 0) return `<div class="card locked"><h3>???</h3><span class="tag ${cssRarete}">${sp.rarete}</span><p>Continuez à explorer !</p></div>`;
+
+            // Affiche le badge seulement s'il y a plus de 0 exemplaires
+            const badgeHTML = count > 0 ? `<div class="duplicate-badge">x${count}</div>` : '';
 
             return `
                 <div class="card ${isPlante ? 'plante' : 'animal'}">
@@ -306,6 +309,7 @@
                     </div>
                     <p><strong>Observation :</strong> ${sp.annee}</p>
                     <p class="description">${sp.desc}</p>
+                    ${badgeHTML}
                 </div>`;
         }
 
@@ -356,12 +360,10 @@
             }
         }
 
-        // ETAPE 1 : Afficher l'émoji
         function triggerReward(type) {
             rewardTypePending = type;
             isCardFlipping = false;
             
-            // Préparation de l'interface
             document.getElementById("reward-overlay").classList.remove("hidden");
             document.getElementById("reward-emoji-container").classList.remove("hidden");
             document.getElementById("flip-card").classList.add("hidden");
@@ -373,19 +375,16 @@
             const emoji = document.getElementById("reward-emoji");
             emoji.innerText = type === "plante" ? "🌱" : "🐾";
 
-            // On tire au sort l'espèce en arrière-plan
             pendingSpecies = pullGacha(type === "plante" ? fauneEtFlore.plantes : fauneEtFlore.animaux);
         }
 
-        // ETAPE 2 : Clic sur l'émoji -> Fait apparaître la carte mystère
         function spawnCard() {
             document.getElementById("reward-emoji-container").classList.add("hidden");
             
             const flipContainer = document.getElementById("flip-card");
             flipContainer.classList.remove("hidden");
-            flipContainer.classList.add("anim-popup"); // Animation d'apparition
+            flipContainer.classList.add("anim-popup"); 
             
-            // Design du dos mystère
             const frontCard = document.getElementById("card-front");
             frontCard.className = "front " + (rewardTypePending === "plante" ? "plante-bg" : "animal-bg");
             
@@ -394,19 +393,19 @@
             rarityText.style.color = "white";
             rarityText.style.transform = "scale(1)";
 
-            // On calcule combien de clics il faudra selon la rareté
             revealStep = 0;
             let r = pendingSpecies.rarete.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
             if (r.includes('legendaire')) targetRevealSteps = 4;
             else if (r.includes('epique')) targetRevealSteps = 3;
             else if (r.includes('rare')) targetRevealSteps = 2;
-            else targetRevealSteps = 1; // Commune
+            else targetRevealSteps = 1; 
             
-            // On injecte la vraie carte dans le dos
-            document.getElementById("reward-card-content").innerHTML = buildCardHTML(pendingSpecies, false);
+            // Pour l'affichage de l'ouverture, on n'affiche pas encore le compteur
+            document.getElementById("reward-card-content").innerHTML = buildCardHTML(pendingSpecies, 0).replace('locked', '').replace('???', pendingSpecies.nom); 
+            // On refait le HTML de l'overlay proprement pour qu'il ne soit pas locked
+            document.getElementById("reward-card-content").innerHTML = buildCardHTML(pendingSpecies, 1); 
         }
 
-        // ETAPE 3 : Clics successifs sur la carte pour monter la rareté
         function handleCardClick() {
             if (isCardFlipping || !pendingSpecies) return;
 
@@ -414,12 +413,10 @@
             const rarityText = document.getElementById("front-rarity-text");
             const container = document.getElementById("flip-card");
 
-            // Petit effet de secousse à chaque clic
             container.classList.remove("anim-shake");
-            void container.offsetWidth; // Force le redessin
+            void container.offsetWidth; 
             container.classList.add("anim-shake");
 
-            // Mise à jour du texte selon l'étape de clic
             if (revealStep === 1) {
                 rarityText.innerText = "⭐ Commune..."; rarityText.style.color = "#e0f7fa";
             } else if (revealStep === 2) {
@@ -430,11 +427,9 @@
                 rarityText.innerText = "🌟 LÉGENDAIRE 🌟"; rarityText.style.color = "#ffeb3b"; rarityText.style.transform = "scale(1.2)";
             }
 
-            // Si on a atteint le nombre de clics nécessaires pour cette carte
             if (revealStep >= targetRevealSteps) {
                 isCardFlipping = true;
                 
-                // Tremblement final intense avant de se retourner
                 container.classList.remove("anim-shake");
                 void container.offsetWidth;
                 container.classList.add("anim-intense-shake");
@@ -442,25 +437,25 @@
                 setTimeout(() => { 
                     container.classList.remove("anim-intense-shake");
                     doActualFlip(); 
-                }, 1200); // Durée du tremblement intense (1.2 sec)
+                }, 1200); 
             }
         }
 
-        // ETAPE 4 : Le retournement final
         function doActualFlip() {
             document.getElementById("flip-card").classList.add("flip");
 
             const isNew = !inventaireJoueur.includes(pendingSpecies.id);
             if(rewardTypePending === "plante") totalGraines++; 
-            if (isNew) inventaireJoueur.push(pendingSpecies.id);
+            
+            // MAJ : On stocke TOUJOURS l'espèce pour compter les doublons !
+            inventaireJoueur.push(pendingSpecies.id);
             
             sauvegarderProgression();
 
-            // On affiche le bouton Continuer quand la carte est retournée (1.5s car la transition a été ralentie)
             setTimeout(() => {
                 document.getElementById("reward-header-text").innerText = isNew ? "✨ Nouvelle découverte !" : "🔁 Vous l'aviez déjà !";
                 document.getElementById("btn-continue-reward").classList.remove("hidden");
-            }, 800); // Apparaît au milieu de la rotation
+            }, 800); 
         }
 
         function closeReward() {
@@ -478,6 +473,7 @@
             return liste[0];
         }
 
+        // MAJ : Rendu de l'inventaire avec le calcul des doublons
         function renderInventory() {
             const gridPlantes = document.getElementById("grid-plantes");
             const gridAnimaux = document.getElementById("grid-animaux");
@@ -485,10 +481,13 @@
             gridAnimaux.innerHTML = "";
             
             fauneEtFlore.plantes.forEach(sp => {
-                gridPlantes.innerHTML += buildCardHTML(sp, !inventaireJoueur.includes(sp.id));
+                // Compte le nombre de fois que l'ID apparaît dans l'inventaire
+                const count = inventaireJoueur.filter(id => id === sp.id).length;
+                gridPlantes.innerHTML += buildCardHTML(sp, count);
             });
             fauneEtFlore.animaux.forEach(sp => {
-                gridAnimaux.innerHTML += buildCardHTML(sp, !inventaireJoueur.includes(sp.id));
+                const count = inventaireJoueur.filter(id => id === sp.id).length;
+                gridAnimaux.innerHTML += buildCardHTML(sp, count);
             });
         }
 
