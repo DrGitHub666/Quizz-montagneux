@@ -9,9 +9,14 @@
         header { background-color: #2e7d32; color: white; padding: 20px; text-align: center; }
         
         nav { display: flex; justify-content: center; background: #1b5e20; padding: 10px; flex-wrap: wrap; gap: 5px; }
-        nav button { background: none; border: none; color: white; font-size: 16px; font-weight: bold; cursor: pointer; padding: 10px 15px; border-radius: 5px; transition: 0.3s; }
+        nav button { position: relative; background: none; border: none; color: white; font-size: 16px; font-weight: bold; cursor: pointer; padding: 10px 15px; border-radius: 5px; transition: 0.3s; }
         nav button:hover, nav button.active { background: #4caf50; }
         
+        /* MAJ : Le badge de notification sur le bouton Carnet */
+        .nav-badge { position: absolute; top: -5px; right: -5px; background: #e53935; color: white; font-size: 12px; font-weight: bold; padding: 3px 7px; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.3); border: 2px solid #1b5e20; }
+        @keyframes popBadge { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
+        .anim-pop-badge { animation: popBadge 0.3s ease-out; }
+
         .container { max-width: 1000px; margin: 20px auto; padding: 0 20px; text-align: center; }
         .hidden { display: none !important; }
         
@@ -23,10 +28,9 @@
         .btn-start { display: block; width: 200px; margin: 30px auto 0; padding: 15px; background: #2e7d32; color: white; border: none; border-radius: 30px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; text-align: center; }
         .btn-start:hover { background: #1b5e20; transform: scale(1.05); }
 
-        /* --- BARRE DE STATS (HUD) --- */
-        .stats-bar { display: flex; justify-content: space-around; align-items: center; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; font-weight: bold; color: #2e7d32; font-size: 15px; flex-wrap: wrap; gap: 10px; }
-        .btn-pull-animal { background: #e53935; color: white; border: 2px solid #b71c1c; border-radius: 50%; width: 35px; height: 35px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: 0.2s; }
-        .btn-pull-animal:hover { transform: scale(1.1); background: #b71c1c; }
+        /* --- BARRE DE STATS ÉPURÉE --- */
+        .stats-bar { display: flex; justify-content: space-around; align-items: center; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; font-weight: bold; color: #2e7d32; font-size: 18px; flex-wrap: wrap; gap: 10px; }
+        .progress-text { display: block; font-size: 13px; font-weight: normal; color: #555; margin-top: 4px; }
 
         /* --- QCM --- */
         .question-box { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
@@ -51,21 +55,7 @@
         .anim-popup { animation: popUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         @keyframes shake { 0% { transform: rotate(0deg) scale(1); } 25% { transform: rotate(5deg) scale(1.05); } 50% { transform: rotate(0eg) scale(1); } 75% { transform: rotate(-5deg) scale(1.05); } 100% { transform: rotate(0deg) scale(1); } }
         .anim-shake { animation: shake 0.3s; }
-        
-        /* MAJ: Tremblement plus subtil (moins violent) */
-        @keyframes intenseShake { 
-            0% { transform: translate(1px, 0px) rotate(0deg); } 
-            10% { transform: translate(-1px, -1px) rotate(-1deg); } 
-            20% { transform: translate(-1px, 0px) rotate(1deg); } 
-            30% { transform: translate(1px, 1px) rotate(0deg); } 
-            40% { transform: translate(0px, -1px) rotate(1deg); } 
-            50% { transform: translate(-1px, 1px) rotate(-1deg); } 
-            60% { transform: translate(-1px, 0px) rotate(0deg); } 
-            70% { transform: translate(1px, 0px) rotate(-1deg); } 
-            80% { transform: translate(0px, -1px) rotate(1deg); } 
-            90% { transform: translate(1px, 1px) rotate(0deg); } 
-            100% { transform: translate(0px, -1px) rotate(-1deg); } 
-        }
+        @keyframes intenseShake { 0% { transform: translate(1px, 0px) rotate(0deg); } 10% { transform: translate(-1px, -1px) rotate(-1deg); } 20% { transform: translate(-1px, 0px) rotate(1deg); } 30% { transform: translate(1px, 1px) rotate(0deg); } 40% { transform: translate(0px, -1px) rotate(1deg); } 50% { transform: translate(-1px, 1px) rotate(-1deg); } 60% { transform: translate(-1px, 0px) rotate(0deg); } 70% { transform: translate(1px, 0px) rotate(-1deg); } 80% { transform: translate(0px, -1px) rotate(1deg); } 90% { transform: translate(1px, 1px) rotate(0deg); } 100% { transform: translate(0px, -1px) rotate(-1deg); } }
         .anim-intense-shake { animation: intenseShake 0.1s infinite; }
 
         .flip-container { perspective: 1000px; width: 320px; height: 500px; margin: 10px auto; cursor: pointer; }
@@ -83,10 +73,29 @@
         .back .tags-container { margin-bottom: 12px; }
         .back .tag { padding: 5px 12px; font-size: 13px; }
         .back .description { font-size: 14px; line-height: 1.5; color: #444; font-style: italic; margin-top: 10px; }
+        
         .btn-close-reward { margin-top: 20px; padding: 12px 25px; background: #4caf50; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; width: 320px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: 0.2s; }
         .btn-close-reward:hover { background: #388e3c; }
 
-        /* --- CARNET, INVENTAIRE ET STATS --- */
+        /* --- CARNET, EN-TÊTES ET BOUTONS D'ACTION --- */
+        .carnet-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e8f5e9; padding-bottom: 15px; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
+        .carnet-header h3 { color: #2e7d32; font-size: 22px; margin: 0; display: flex; flex-direction: column; text-align: left; }
+        .carnet-header .counter { font-size: 14px; color: #777; font-weight: normal; margin-top: 5px; }
+        
+        .btn-action-carnet { padding: 12px 25px; font-size: 16px; font-weight: bold; color: white; border: none; border-radius: 30px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: 0.2s; display: flex; align-items: center; gap: 10px; }
+        .btn-planter { background: #fbc02d; color: #e65100; border: 2px solid #f57f17; }
+        .btn-planter:hover { background: #fdd835; transform: scale(1.05); }
+        .btn-decouvrir { background: #e53935; color: white; border: 2px solid #b71c1c; }
+        .btn-decouvrir:hover { background: #f44336; transform: scale(1.05); }
+        .btn-action-carnet:disabled { filter: grayscale(100%); opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        /* BOUTON SAC DE RÉCOMPENSE */
+        .sac-container { background: #fff3e0; border: 2px dashed #ff9800; border-radius: 12px; padding: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-sac { background: #ff9800; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; animation: pulse 2s infinite; }
+        .btn-sac:hover { background: #f57c00; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+        /* --- GRILLE ET CARTES --- */
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; margin-top: 20px; }
         .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); border-top: 5px solid #2e7d32; text-align: left; transition: transform 0.2s; position: relative; }
         .card:hover { transform: translateY(-5px); }
@@ -128,7 +137,10 @@
     <nav>
         <button id="nav-accueil" class="active" onclick="switchTab('accueil')">🏠 Accueil</button>
         <button id="nav-qcm" onclick="switchTab('qcm')">🎮 Jouer</button>
-        <button id="nav-carnet" onclick="switchTab('carnet')">📖 Mon Carnet</button>
+        <button id="nav-carnet" onclick="switchTab('carnet')">
+            📖 Mon Carnet
+            <span id="carnet-badge" class="nav-badge hidden">0</span>
+        </button>
         <button id="nav-inventaire" onclick="switchTab('inventaire')">🎒 Inventaire</button>
         <button id="nav-statistiques" onclick="switchTab('statistiques')">📊 Statistiques</button>
     </nav>
@@ -139,15 +151,15 @@
             <p>Ce site est un simulateur d'exploration naturaliste. Votre mission est de recenser les espèces emblématiques des Pyrénées pour compléter votre carnet de terrain.</p>
             <div class="rule-item">
                 <div class="rule-icon">💡</div>
-                <div><strong>Le Quiz :</strong> Chaque série de <strong>3 bonnes réponses</strong> vous donne une graine mystérieuse.</div>
+                <div><strong>Le Quiz :</strong> Chaque série de <strong>3 bonnes réponses</strong> vous donne une graine à planter dans le carnet.</div>
             </div>
             <div class="rule-item">
                 <div class="rule-icon">⭐</div>
-                <div><strong>Niveaux :</strong> Toutes les 5 graines, vous passez au niveau supérieur !</div>
+                <div><strong>Niveaux :</strong> Toutes les 5 graines gagnées, vous montez de niveau et obtenez une observation animale.</div>
             </div>
             <div class="rule-item">
-                <div class="rule-icon">🐾</div>
-                <div><strong>Rencontres :</strong> À chaque passage de niveau, vous gagnez un "Jeton Animal". Cliquez sur le bouton rouge en haut pour déclencher la rencontre quand vous le souhaitez !</div>
+                <div class="rule-icon">🎁</div>
+                <div><strong>Sacs de récompense :</strong> Tous les 5 niveaux, un sac spécial contenant plusieurs espèces apparaît dans votre carnet !</div>
             </div>
             <button class="btn-start" onclick="switchTab('qcm')">Commencer l'étude</button>
         </div>
@@ -155,14 +167,11 @@
 
     <div id="section-qcm" class="container hidden">
         <div class="stats-bar">
-            <div>⭐ Niveau : <span id="niveau-joueur">0</span></div>
-            <div>🔥 Série : <span id="streak-counter">0</span> / 3</div>
-            <div>🌱 Graines : <span id="graines-counter">0</span> <br><span style="font-size: 12px; font-weight: normal;">(Niv. Suivant : <span id="animal-progress">0</span> / 5)</span></div>
-            <div>
-                🐾 À découvrir : 
-                <button id="btn-animal-pull" onclick="pullAnimal()" class="btn-pull-animal hidden anim-bounce">0</button>
-                <span id="no-animal-text">0</span>
+            <div style="text-align: center;">
+                ⭐ Niveau : <span id="niveau-joueur">0</span>
+                <span class="progress-text">(Niv. Suivant : <span id="animal-progress">0</span> / 5)</span>
             </div>
+            <div>🔥 Série : <span id="streak-counter">0</span> / 3</div>
         </div>
         <div class="question-box">
             <div id="question-text" class="question-text">Connexion à la base de données en cours... 📡</div>
@@ -172,12 +181,36 @@
     </div>
 
     <div id="section-carnet" class="container hidden">
+        
+        <div id="bag-container" class="sac-container hidden">
+            <div>
+                <h3 style="margin:0; color:#e65100; font-size:20px;">🎁 Sac de récompense disponible !</h3>
+                <p style="margin:5px 0 0 0; color:#555; font-size:14px;">Contient 2 fleurs et 1 animal.</p>
+            </div>
+            <button class="btn-sac" onclick="openBag()">Ouvrir le sac (<span id="count-sacs">0</span>)</button>
+        </div>
+
         <nav style="background:transparent; border-bottom: 2px solid #e8f5e9; margin-bottom: 20px; padding:0;">
             <button id="subnav-plantes" class="active" onclick="switchSubTabCarnet('plantes')" style="color:#2e7d32; border-bottom: 2px solid transparent;">🌸 Flore</button>
             <button id="subnav-animaux" onclick="switchSubTabCarnet('animaux')" style="color:#2e7d32; border-bottom: 2px solid transparent;">🐾 Faune</button>
         </nav>
-        <div id="grid-plantes" class="grid"></div>
-        <div id="grid-animaux" class="grid hidden"></div>
+        
+        <div id="view-plantes">
+            <div class="carnet-header">
+                <h3>🌸 Flore des Pyrénées <span class="counter" id="count-plantes-trouvees">0/0 trouvées</span></h3>
+                <button id="btn-planter" class="btn-action-carnet btn-planter" onclick="planterGraine()">🌱 Planter (0)</button>
+            </div>
+            <div id="grid-plantes" class="grid"></div>
+        </div>
+
+        <div id="view-animaux" class="hidden">
+            <div class="carnet-header">
+                <h3>🐾 Faune des Pyrénées <span class="counter" id="count-animaux-trouves">0/0 trouvés</span></h3>
+                <button id="btn-decouvrir" class="btn-action-carnet btn-decouvrir" onclick="decouvrirAnimal()">🐾 Découvrir (0)</button>
+            </div>
+            <div id="grid-animaux" class="grid"></div>
+        </div>
+
     </div>
 
     <div id="section-inventaire" class="container hidden">
@@ -185,13 +218,11 @@
             <button id="subnav-potions" class="active" onclick="switchSubTabInventaire('potions')" style="color:#2e7d32; border-bottom: 2px solid transparent;">🧪 Potions & Artisanat</button>
             <button id="subnav-tresorerie" onclick="switchSubTabInventaire('tresorerie')" style="color:#2e7d32; border-bottom: 2px solid transparent;">💰 Trésorerie</button>
         </nav>
-        
         <div id="panel-potions" class="wip-box">
             <h3>🧪 Laboratoire d'Alchimie</h3>
             <p>Cet espace est en cours d'aménagement. Bientôt, vous pourrez conserver vos doublons pour concocter des potions et redonner vie à des espèces légendaires éteintes ! Allez-vous revendre vos trouvailles ou les garder pour l'artisanat ?</p>
             <div style="font-size: 50px; margin-top: 20px;">⚗️✨</div>
         </div>
-        
         <div id="panel-tresorerie" class="wip-box hidden">
             <h3>💰 Marché de l'Explorateur</h3>
             <p>Bientôt, vous pourrez revendre vos doublons. Une carte commune vaudra 1 pièce d'or, et les prix s'envoleront avec la rareté ! Avec cet or, vous financerez de futures expéditions vers de nouvelles régions...</p>
@@ -205,9 +236,7 @@
             <p>Voici votre progression actuelle :</p>
             <div class="stats-highlight">Niveau <span id="stat-niveau-affichage">0</span></div>
             <div id="stat-grade-affichage" class="grade-badge">Observateur Curieux</div>
-            
             <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
-            
             <h3>🏆 Classement Mondial (Bientôt)</h3>
             <p>La connexion avec le serveur central de classement est en cours de création. Vous pourrez bientôt comparer vos connaissances avec les écologues du monde entier !</p>
             <div style="font-size: 50px; margin-top: 20px;">🌍🏆</div>
@@ -232,7 +261,7 @@
             </div>
         </div>
 
-        <button id="btn-continue-reward" class="btn-close-reward hidden" onclick="closeReward()">Continuer l'exploration</button>
+        <button id="btn-continue-reward" class="btn-close-reward hidden" onclick="closeReward()">Continuer</button>
     </div>
 
     <script>
@@ -243,12 +272,18 @@
         let fauneEtFlore = { plantes: [], animaux: [] };
 
         let inventaireJoueur = [];
-        let totalGraines = 0;
         let streak = 0;
+        
+        // NOUVEAU SYSTEME DE COMPTEURS
+        let grainesGagnees = 0;
+        let grainesPlantees = 0;
         let animauxTires = 0; 
+        let sacsOuverts = 0;
         
         let rewardTypePending = ""; 
         let pendingSpecies = null;
+        let rewardQueue = []; // Pour enchaîner les récompenses du sac
+        let isFromQueue = false;
         
         let isCardFlipping = false;
         let revealStep = 0;
@@ -256,15 +291,23 @@
 
         try {
             inventaireJoueur = JSON.parse(localStorage.getItem("inventaire")) || [];
-            totalGraines = JSON.parse(localStorage.getItem("totalGraines")) || 0;
+            
+            // Migration de l'ancienne sauvegarde vers le nouveau système
+            let oldTotalGraines = JSON.parse(localStorage.getItem("totalGraines"));
+            grainesGagnees = JSON.parse(localStorage.getItem("grainesGagnees")) || oldTotalGraines || 0;
+            grainesPlantees = JSON.parse(localStorage.getItem("grainesPlantees")) || oldTotalGraines || 0;
+            
             animauxTires = JSON.parse(localStorage.getItem("animauxTires")) || 0;
+            sacsOuverts = JSON.parse(localStorage.getItem("sacsOuverts")) || 0;
         } catch (e) { console.warn("Sauvegarde locale bloquée."); }
 
         function sauvegarderProgression() {
             try {
                 localStorage.setItem("inventaire", JSON.stringify(inventaireJoueur));
-                localStorage.setItem("totalGraines", totalGraines);
+                localStorage.setItem("grainesGagnees", grainesGagnees);
+                localStorage.setItem("grainesPlantees", grainesPlantees);
                 localStorage.setItem("animauxTires", animauxTires);
+                localStorage.setItem("sacsOuverts", sacsOuverts);
             } catch (e) {}
         }
 
@@ -309,6 +352,7 @@
 
                 if (quizNature.length > 0) loadQuestion();
             } catch (erreur) { console.error(erreur); }
+            updateHUD(); // Pour mettre à jour les x/y
         }
 
         function switchTab(tab) {
@@ -323,13 +367,14 @@
         }
 
         function switchSubTabCarnet(subTab) {
-            document.getElementById("grid-plantes").classList.add("hidden");
-            document.getElementById("grid-animaux").classList.add("hidden");
+            document.getElementById("view-plantes").classList.add("hidden");
+            document.getElementById("view-animaux").classList.add("hidden");
             document.getElementById("subnav-plantes").classList.remove("active");
             document.getElementById("subnav-plantes").style.borderBottomColor = "transparent";
             document.getElementById("subnav-animaux").classList.remove("active");
             document.getElementById("subnav-animaux").style.borderBottomColor = "transparent";
-            document.getElementById("grid-" + subTab).classList.remove("hidden");
+            
+            document.getElementById("view-" + subTab).classList.remove("hidden");
             document.getElementById("subnav-" + subTab).classList.add("active");
             document.getElementById("subnav-" + subTab).style.borderBottomColor = "#4caf50";
         }
@@ -390,8 +435,13 @@
                         btn.classList.add("success-answer");
                         document.getElementById("feedback").innerHTML = "<span class='correct'>✔ Excellente réponse !</span>";
                         streak++;
-                        if (streak >= 3) setTimeout(() => triggerReward("plante"), 1000);
-                        else setTimeout(loadQuestion, 1500);
+                        if (streak >= 3) {
+                            streak = 0;
+                            grainesGagnees++;
+                            sauvegarderProgression();
+                            pulseBadge();
+                        }
+                        setTimeout(loadQuestion, 1500); // Enchaîne direct la question sans écran
                     } else {
                         btn.classList.add("wrong-answer");
                         allBtns[q.correct].classList.add("correct-answer");
@@ -406,14 +456,56 @@
             updateHUD();
         }
 
-        function pullAnimal() {
-            let niveauActuel = Math.floor(totalGraines / 5);
+        function pulseBadge() {
+            const badge = document.getElementById("carnet-badge");
+            badge.classList.remove("anim-pop-badge");
+            void badge.offsetWidth; // reset anim
+            badge.classList.add("anim-pop-badge");
+        }
+
+        // LES NOUVELLES FONCTIONS DU CARNET
+        function planterGraine() {
+            let grainesEnAttente = grainesGagnees - grainesPlantees;
+            if (grainesEnAttente > 0) {
+                grainesPlantees++;
+                sauvegarderProgression();
+                triggerReward("plante");
+            }
+        }
+
+        function decouvrirAnimal() {
+            let niveauActuel = Math.floor(grainesGagnees / 5);
             let animauxEnAttente = niveauActuel - animauxTires;
             if (animauxEnAttente > 0) {
                 animauxTires++;
                 sauvegarderProgression();
-                updateHUD();
                 triggerReward("animal");
+            }
+        }
+
+        function openBag() {
+            let niveauActuel = Math.floor(grainesGagnees / 5);
+            let sacsGagnes = Math.floor(niveauActuel / 5);
+            let sacsEnAttente = sacsGagnes - sacsOuverts;
+            
+            if (sacsEnAttente > 0) {
+                sacsOuverts++;
+                sauvegarderProgression();
+                // On met dans la file d'attente 2 plantes et 1 animal
+                rewardQueue = ['plante', 'plante', 'animal'];
+                processQueue();
+            }
+        }
+
+        function processQueue() {
+            if (rewardQueue.length > 0) {
+                let type = rewardQueue.shift();
+                isFromQueue = true;
+                triggerReward(type);
+            } else {
+                isFromQueue = false;
+                renderInventory();
+                updateHUD();
             }
         }
 
@@ -488,7 +580,6 @@
                 void container.offsetWidth;
                 container.classList.add("anim-intense-shake");
                 
-                // MAJ: Délai allongé pour profiter du tremblement (1.8s)
                 setTimeout(() => { 
                     container.classList.remove("anim-intense-shake");
                     doActualFlip(); 
@@ -500,8 +591,6 @@
             document.getElementById("flip-card").classList.add("flip");
 
             const isNew = !inventaireJoueur.includes(pendingSpecies.id);
-            if(rewardTypePending === "plante") totalGraines++; 
-            
             inventaireJoueur.push(pendingSpecies.id);
             sauvegarderProgression();
 
@@ -513,9 +602,13 @@
 
         function closeReward() {
             document.getElementById("reward-overlay").classList.add("hidden");
-            streak = 0;
-            updateHUD();
-            if (rewardTypePending === "plante") { loadQuestion(); }
+            if (isFromQueue && rewardQueue.length > 0) {
+                setTimeout(processQueue, 300); // Lance la prochaine carte du sac
+            } else {
+                isFromQueue = false;
+                renderInventory();
+                updateHUD();
+            }
         }
 
         function pullGacha(liste) {
@@ -553,31 +646,66 @@
 
         function updateHUD() {
             document.getElementById("streak-counter").innerText = streak;
-            document.getElementById("graines-counter").innerText = totalGraines;
             
-            let niveauActuel = Math.floor(totalGraines / 5);
-            document.getElementById("niveau-joueur").innerText = niveauActuel;
-            document.getElementById("animal-progress").innerText = totalGraines % 5;
+            let niveauActuel = Math.floor(grainesGagnees / 5);
+            let animauxGagnes = niveauActuel;
+            let sacsGagnes = Math.floor(niveauActuel / 5);
 
+            let grainesEnAttente = grainesGagnees - grainesPlantees;
+            let animauxEnAttente = animauxGagnes - animauxTires;
+            let sacsEnAttente = sacsGagnes - sacsOuverts;
+            
+            let totalNotifs = grainesEnAttente + animauxEnAttente + sacsEnAttente;
+
+            // HUD QCM
+            document.getElementById("niveau-joueur").innerText = niveauActuel;
+            document.getElementById("animal-progress").innerText = grainesGagnees % 5;
+
+            // BADGE CARNET
+            const badge = document.getElementById("carnet-badge");
+            if (totalNotifs > 0) {
+                badge.innerText = totalNotifs;
+                badge.classList.remove("hidden");
+            } else {
+                badge.classList.add("hidden");
+            }
+
+            // BOUTONS CARNET
+            const btnPlanter = document.getElementById("btn-planter");
+            btnPlanter.innerText = `🌱 Planter (${grainesEnAttente})`;
+            btnPlanter.disabled = (grainesEnAttente === 0);
+
+            const btnDecouvrir = document.getElementById("btn-decouvrir");
+            btnDecouvrir.innerText = `🐾 Découvrir (${animauxEnAttente})`;
+            btnDecouvrir.disabled = (animauxEnAttente === 0);
+
+            // SAC DE RECOMPENSE
+            const bagContainer = document.getElementById("bag-container");
+            if (sacsEnAttente > 0) {
+                bagContainer.classList.remove("hidden");
+                document.getElementById("count-sacs").innerText = sacsEnAttente;
+            } else {
+                bagContainer.classList.add("hidden");
+            }
+
+            // COMPTEURS X/Y
+            if (fauneEtFlore.plantes.length > 0) {
+                const idsPlantes = fauneEtFlore.plantes.map(p => p.id);
+                const uniquesP = new Set(inventaireJoueur.filter(id => idsPlantes.includes(id))).size;
+                document.getElementById('count-plantes-trouvees').innerText = `${uniquesP}/${idsPlantes.length} trouvées`;
+            }
+            if (fauneEtFlore.animaux.length > 0) {
+                const idsAnimaux = fauneEtFlore.animaux.map(p => p.id);
+                const uniquesA = new Set(inventaireJoueur.filter(id => idsAnimaux.includes(id))).size;
+                document.getElementById('count-animaux-trouves').innerText = `${uniquesA}/${idsAnimaux.length} trouvés`;
+            }
+
+            // STATISTIQUES
             document.getElementById("stat-niveau-affichage").innerText = niveauActuel;
             document.getElementById("stat-grade-affichage").innerText = getNomGrade(niveauActuel);
-
-            let animauxEnAttente = niveauActuel - animauxTires;
-            const btnAnimal = document.getElementById("btn-animal-pull");
-            const textNoAnimal = document.getElementById("no-animal-text");
-
-            if (animauxEnAttente > 0) {
-                btnAnimal.innerText = animauxEnAttente;
-                btnAnimal.classList.remove("hidden");
-                textNoAnimal.classList.add("hidden");
-            } else {
-                btnAnimal.classList.add("hidden");
-                textNoAnimal.classList.remove("hidden");
-                textNoAnimal.innerText = "0";
-            }
         }
 
-        window.onload = () => { updateHUD(); chargerDonnees(); };
+        window.onload = () => { chargerDonnees(); };
     </script>
 </body>
 </html>
