@@ -26,9 +26,9 @@
         .btn-start:hover { background: #1b5e20; transform: scale(1.05); }
 
         /* --- HUD --- */
-        .stats-bar { display: flex; justify-content: space-around; align-items: center; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; font-weight: bold; color: #2e7d32; font-size: 18px; flex-wrap: wrap; gap: 10px; }
+        .stats-bar { display: flex; justify-content: space-around; align-items: center; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; font-weight: bold; color: #2e7d32; font-size: 16px; flex-wrap: wrap; gap: 10px; }
         .progress-text { display: block; font-size: 13px; font-weight: normal; color: #555; margin-top: 4px; }
-        .gold-display { color: #f9a825; display: flex; align-items: center; gap: 5px; }
+        .gold-display { color: #f9a825; display: flex; align-items: center; gap: 5px; font-size: 20px;}
 
         /* --- QCM --- */
         .question-box { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
@@ -94,10 +94,10 @@
         .shop-item.epique { background: #f3e5f5; border: 2px solid #9c27b0; color: #4a148c; }
         .shop-item.legendaire { background: #fff8e1; border: 2px solid #ffc107; color: #f57f17; }
         
-        .shop-price { font-weight: bold; font-size: 18px; margin-top: 5px; display: block; }
+        .shop-price { font-weight: bold; font-size: 18px; margin-top: 5px; display: block; color: #f9a825; }
         .shop-rarity { font-size: 14px; font-weight: bold; text-transform: uppercase; }
         
-        /* NOUVEAU DESIGN SAC (DÉGRADÉ 4 COULEURS) */
+        /* DÉGRADÉ 4 COULEURS */
         .sac-box { 
             background: linear-gradient(135deg, rgba(33,150,243,0.05), rgba(244,67,54,0.05), rgba(156,39,176,0.05), rgba(255,193,7,0.05)); 
             border: 3px solid transparent; 
@@ -143,16 +143,17 @@
             <p>Essaye de découvrir toutes les espèces végétales et animales des Pyrénées, si tu y parviens !</p>
             <div class="rule-item"><div class="rule-icon">🎮</div><div><strong>Jouer :</strong> Réponds aux questions de culture G et débloque des espèces.</div></div>
             <div class="rule-item"><div class="rule-icon">📖</div><div><strong>Carnet :</strong> Retrouve la faune et la flore que tu as découvertes ici.</div></div>
-            <div class="rule-item"><div class="rule-icon">🎒</div><div><strong>Inventaire :</strong> Utilise l'or que tu as gagné pour découvrir d'autres espèces !</div></div>
+            <div class="rule-item"><div class="rule-icon">🎒</div><div><strong>Inventaire :</strong> Utilise tes pierres de troc pour découvrir d'autres espèces !</div></div>
             <button class="btn-start" onclick="switchTab('qcm')">Commencer l'étude</button>
         </div>
     </div>
 
     <div id="section-qcm" class="container hidden">
         <div class="stats-bar">
-            <div>⭐ Niveau : <span id="niveau-joueur">0</span><span class="progress-text">(Suivant : <span id="animal-progress">0</span> / 5)</span></div>
-            <div>🔥 Série : <span id="streak-counter">0</span> / 3</div>
-            <div class="gold-display">🪙 <span id="gold-hud">0</span></div>
+            <div style="text-align: center;">⭐ Niveau : <span id="niveau-joueur">0</span><br><span class="progress-text">(Niv. Suivant : <span id="niveau-progress">0</span> / 5)</span></div>
+            <div style="text-align: center;">🐾 Animal<br><span class="progress-text">(Prochain : <span id="animal-progress">0</span> / 3)</span></div>
+            <div style="text-align: center;">🔥 Série<br><span class="progress-text"><span id="streak-counter">0</span> / 3</span></div>
+            <div class="gold-display" style="text-align: center;">🪨 <span id="gold-hud">0</span></div>
         </div>
         <div class="question-box">
             <div id="question-text" class="question-text">Chargement...</div>
@@ -179,52 +180,52 @@
 
     <div id="section-inventaire" class="container hidden">
         <nav style="background:transparent; border-bottom: 2px solid #e8f5e9; margin-bottom: 20px; padding:0;">
-            <button id="subnav-tresorerie" class="active" onclick="switchSubTabInventaire('tresorerie')" style="color:#2e7d32; border-bottom: 2px solid transparent;">💰 Trésorerie</button>
+            <button id="subnav-tresorerie" class="active" onclick="switchSubTabInventaire('tresorerie')" style="color:#2e7d32; border-bottom: 2px solid transparent;">🪨 Trésorerie</button>
             <button id="subnav-laboratoire" onclick="switchSubTabInventaire('laboratoire')" style="color:#2e7d32; border-bottom: 2px solid transparent;">⚗️ Laboratoire</button>
         </nav>
         
         <div id="panel-tresorerie">
             <div class="stats-bar" style="margin-bottom:30px;">
-                <div style="font-size:24px;">Votre Butin : <span style="color:#f9a825;">🪙 <span id="gold-tresor">0</span></span></div>
+                <div style="font-size:24px;">Votre Butin : <span style="color:#f9a825;">🪨 <span id="gold-tresor">0</span></span></div>
             </div>
 
             <div id="bag-container" class="sac-box hidden">
-                <div><h3 style="margin:0; color:#333;">🎒 Sac de récompense de niveau !</h3><p style="margin:5px 0 0 0; font-size:14px; font-weight:bold; color:#555;">Obtenez deux plantes et un animal aléatoires !</p></div>
+                <div><h3 style="margin:0; color:#333;">🎒 Sac d'expédition (Niveau)</h3><p style="margin:5px 0 0 0; font-size:14px; font-weight:bold; color:#555;">Contient 2 plantes et 1 animal !</p></div>
                 <button class="btn-sac" onclick="openBag()">Ouvrir (<span id="count-sacs">0</span>)</button>
             </div>
 
             <div class="shop-section">
-                <h2 style="color:#2e7d32; margin-top:0;">🛒 Marché du botaniste</h2>
+                <h2 style="color:#2e7d32; margin-top:0;">⛺ Marché du botaniste</h2>
                 <div class="shop-grid">
                     <div class="shop-item commune" onclick="buyCard('plante', 'Commune', 5)">
-                        <span class="shop-rarity">🌸 Commune</span><span class="shop-price">🪙 5</span>
+                        <span class="shop-rarity">🌸 Commune</span><span class="shop-price">🪨 5</span>
                     </div>
                     <div class="shop-item rare" onclick="buyCard('plante', 'Rare', 15)">
-                        <span class="shop-rarity">🌸 Rare</span><span class="shop-price">🪙 15</span>
+                        <span class="shop-rarity">🌸 Rare</span><span class="shop-price">🪨 15</span>
                     </div>
                     <div class="shop-item epique" onclick="buyCard('plante', 'Epique', 25)">
-                        <span class="shop-rarity">🌸 Épique</span><span class="shop-price">🪙 25</span>
+                        <span class="shop-rarity">🌸 Épique</span><span class="shop-price">🪨 25</span>
                     </div>
                     <div class="shop-item legendaire" onclick="buyCard('plante', 'Legendaire', 40)">
-                        <span class="shop-rarity">🌸 Légendaire</span><span class="shop-price">🪙 40</span>
+                        <span class="shop-rarity">🌸 Légendaire</span><span class="shop-price">🪨 40</span>
                     </div>
                     <div class="shop-item commune" onclick="buyCard('animal', 'Commune', 20)">
-                        <span class="shop-rarity">🐾 Commune</span><span class="shop-price">🪙 20</span>
+                        <span class="shop-rarity">🐾 Commune</span><span class="shop-price">🪨 20</span>
                     </div>
                     <div class="shop-item rare" onclick="buyCard('animal', 'Rare', 30)">
-                        <span class="shop-rarity">🐾 Rare</span><span class="shop-price">🪙 30</span>
+                        <span class="shop-rarity">🐾 Rare</span><span class="shop-price">🪨 30</span>
                     </div>
                     <div class="shop-item epique" onclick="buyCard('animal', 'Epique', 40)">
-                        <span class="shop-rarity">🐾 Épique</span><span class="shop-price">🪙 40</span>
+                        <span class="shop-rarity">🐾 Épique</span><span class="shop-price">🪨 40</span>
                     </div>
                     <div class="shop-item legendaire" onclick="buyCard('animal', 'Legendaire', 55)">
-                        <span class="shop-rarity">🐾 Légendaire</span><span class="shop-price">🪙 55</span>
+                        <span class="shop-rarity">🐾 Légendaire</span><span class="shop-price">🪨 55</span>
                     </div>
                     
                     <div class="shop-item shop-item-sac" onclick="buyBag(30)">
-                        <span class="shop-rarity" style="color:#333;">🎒 Sac de récompense aléatoire</span>
-                        <p style="margin:5px 0 0 0; font-size:12px; color:#555;">Obtenez deux plantes et un animal aléatoires !</p>
-                        <span class="shop-price" style="color:#333;">🪙 30</span>
+                        <span class="shop-rarity" style="color:#333;">🎒 Sac d'expédition (Boutique)</span>
+                        <p style="margin:5px 0 0 0; font-size:12px; color:#555;">Contient 2 plantes et 1 animal !</p>
+                        <span class="shop-price" style="color:#333;">🪨 30</span>
                     </div>
                 </div>
             </div>
@@ -270,7 +271,7 @@
         let quizNature = [];
         let fauneEtFlore = { plantes: [], animaux: [] };
         let inventaireJoueur = [];
-        let orJoueur = 0;
+        let pierresJoueur = 0; 
         let streak = 0;
         let grainesGagnees = 0, grainesPlantees = 0, animauxTires = 0, sacsOuverts = 0;
         
@@ -288,7 +289,7 @@
 
         try {
             inventaireJoueur = JSON.parse(localStorage.getItem("inventaire")) || [];
-            orJoueur = JSON.parse(localStorage.getItem("orJoueur")) || 0;
+            pierresJoueur = JSON.parse(localStorage.getItem("pierresJoueur")) || JSON.parse(localStorage.getItem("orJoueur")) || 0;
             grainesGagnees = JSON.parse(localStorage.getItem("grainesGagnees")) || 0;
             grainesPlantees = JSON.parse(localStorage.getItem("grainesPlantees")) || 0;
             animauxTires = JSON.parse(localStorage.getItem("animauxTires")) || 0;
@@ -297,7 +298,7 @@
 
         function sauvegarderProgression() {
             localStorage.setItem("inventaire", JSON.stringify(inventaireJoueur));
-            localStorage.setItem("orJoueur", orJoueur);
+            localStorage.setItem("pierresJoueur", pierresJoueur); 
             localStorage.setItem("grainesGagnees", grainesGagnees);
             localStorage.setItem("grainesPlantees", grainesPlantees);
             localStorage.setItem("animauxTires", animauxTires);
@@ -334,18 +335,24 @@
         }
 
         function updateHUD() {
+            // Un niveau tous les 5 graines, un animal tous les 3 graines
             const niv = Math.floor(grainesGagnees / 5);
+            const animauxGagnes = Math.floor(grainesGagnees / 3);
+            
             document.getElementById("niveau-joueur").innerText = niv;
+            document.getElementById("niveau-progress").innerText = grainesGagnees % 5;
+            
             document.getElementById("stat-niveau").innerText = niv;
             document.getElementById("stat-grade").innerText = getGrade(niv);
-            document.getElementById("animal-progress").innerText = grainesGagnees % 5;
+            
+            document.getElementById("animal-progress").innerText = grainesGagnees % 3;
             document.getElementById("streak-counter").innerText = streak;
-            document.getElementById("gold-hud").innerText = orJoueur;
-            document.getElementById("gold-tresor").innerText = orJoueur;
+            document.getElementById("gold-hud").innerText = pierresJoueur;
+            document.getElementById("gold-tresor").innerText = pierresJoueur;
             
             const gAttente = grainesGagnees - grainesPlantees;
-            const aAttente = niv - animauxTires;
-            const sAttente = Math.floor(niv / 5) - sacsOuverts;
+            const aAttente = animauxGagnes - animauxTires;
+            const sAttente = Math.floor(niv / 5) - sacsOuverts; 
             
             document.getElementById("count-graines-planter").innerText = gAttente;
             document.getElementById("count-animaux-decouvrir").innerText = aAttente;
@@ -394,7 +401,7 @@
             document.getElementById("flip-card").classList.add("hidden");
             document.getElementById("flip-card").classList.remove("flip", "anim-intense-shake");
             document.getElementById("btn-continue-reward").classList.add("hidden");
-            document.getElementById("reward-header-text").innerText = ""; // On nettoie le texte
+            document.getElementById("reward-header-text").innerText = ""; 
             document.getElementById("reward-emoji").innerText = (type === 'plante' ? '🌱' : '🐾');
             pendingSpecies = forcedItem || pullGacha(type === 'plante' ? fauneEtFlore.plantes : fauneEtFlore.animaux);
         }
@@ -436,18 +443,16 @@
             const isNew = !inventaireJoueur.includes(pendingSpecies.id);
             inventaireJoueur.push(pendingSpecies.id);
             
-            // LOGIQUE DE L'OR
             if(pendingSpecies.type === 'plante'){
                 const r = pendingSpecies.rarete.toLowerCase();
-                if(r.includes('legendaire')) orJoueur += 10;
-                else if(r.includes('epique')) orJoueur += 5;
-                else if(r.includes('rare')) orJoueur += 3;
-                else orJoueur += 1;
+                if(r.includes('legendaire')) pierresJoueur += 10;
+                else if(r.includes('epique')) pierresJoueur += 5;
+                else if(r.includes('rare')) pierresJoueur += 3;
+                else pierresJoueur += 1;
             }
             
             sauvegarderProgression();
             setTimeout(() => {
-                // S'il est nouveau, on affiche le message. Sinon on laisse vide !
                 document.getElementById("reward-header-text").innerText = isNew ? "✨ Nouvelle découverte !" : "";
                 document.getElementById("btn-continue-reward").classList.remove("hidden");
             }, 800);
@@ -464,18 +469,18 @@
         }
 
         function buyCard(type, rarity, price) {
-            if(orJoueur < price) { alert("Pas assez d'or !"); return; }
+            if(pierresJoueur < price) { alert("Pas assez de pierres !"); return; }
             const pool = (type === 'plante' ? fauneEtFlore.plantes : fauneEtFlore.animaux)
                          .filter(s => s.rarete.toLowerCase().includes(rarity.toLowerCase()));
             if(!pool.length) return;
-            orJoueur -= price;
+            pierresJoueur -= price;
             const item = pool[Math.floor(Math.random()*pool.length)];
             triggerReward(type, item);
         }
 
         function buyBag(price) {
-            if(orJoueur < price) { alert("Pas assez d'or !"); return; }
-            orJoueur -= price;
+            if(pierresJoueur < price) { alert("Pas assez de pierres !"); return; }
+            pierresJoueur -= price;
             rewardQueue = [{type:'plante'}, {type:'plante'}, {type:'animal'}];
             closeReward(); // Réinitialise et lance la file
         }
@@ -489,7 +494,7 @@
         }
 
         function planterGraine() { if(grainesGagnees > grainesPlantees){ grainesPlantees++; sauvegarderProgression(); triggerReward('plante'); } }
-        function decouvrirAnimal() { if(Math.floor(grainesGagnees/5) > animauxTires){ animauxTires++; sauvegarderProgression(); triggerReward('animal'); } }
+        function decouvrirAnimal() { if(Math.floor(grainesGagnees/3) > animauxTires){ animauxTires++; sauvegarderProgression(); triggerReward('animal'); } }
 
         function buildCardHTML(sp, lock = false, count = 0) {
             if(lock) return `<div class="card locked"><h3>???</h3><span class="tag">${sp.rarete}</span></div>`;
@@ -520,7 +525,6 @@
             grid.innerHTML = "";
             recettes.forEach(r => {
                 const owned = inventaireJoueur.includes(r.id);
-                // Vérifie si on a assez d'ingrédients
                 const canBrew = Object.keys(r.requis).every(reqId => inventaireJoueur.filter(id=>id===reqId).length >= r.requis[reqId]);
                 
                 grid.innerHTML += `
@@ -538,14 +542,13 @@
 
         function creerPotion(id) {
             const r = recettes.find(x => x.id === id);
-            // On retire les ingrédients de l'inventaire
             Object.keys(r.requis).forEach(reqId => {
                 for(let i=0; i<r.requis[reqId]; i++) {
                     const idx = inventaireJoueur.indexOf(reqId);
                     if(idx > -1) inventaireJoueur.splice(idx, 1);
                 }
             });
-            inventaireJoueur.push(id); // On ajoute l'espèce ressuscitée
+            inventaireJoueur.push(id);
             sauvegarderProgression();
             alert("Succès ! Vous avez restauré l'espèce : " + r.nom);
             renderLaboratoire(); 
